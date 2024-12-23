@@ -73,6 +73,7 @@ def train(rank, world_size, opt):
                 ncols = result_count
                 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
                 plt.suptitle(f"EPOCH : {epoch}")
+                print(results[0].shape)
                 for i, result in enumerate(results):
                     axes[0][i].imshow([result[0]], cmap="gray")
                     axes[0][i].axis("off")
