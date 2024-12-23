@@ -67,7 +67,7 @@ def train(rank, world_size, opt):
             if rank == 0:
                 if best_miou < m_iou:
                     best_miou = m_iou
-                print(result[0].shape)
+                print(results[0].shape)
                 nrows = 2
                 ncols = result_count
                 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
