@@ -23,7 +23,9 @@ def tensor2im(input_image, imtype=np.uint8):
         #     image_numpy = np.tile(image_numpy, (3, 1, 1))
         # image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
         image_numpy = (np.transpose(image_numpy, (1, 2, 0)) ) * 255
-        print("im down here")
+        image_numpy[image_numpy < 128] = 0
+        image_numpy[image_numpy >= 128] = 1
+        image_numpy = np.tile(image_numpy, (3, 1, 1))
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
     return image_numpy.astype(imtype)
