@@ -32,8 +32,7 @@ class BaseModel(ABC):
         self.opt = opt
         self.isTrain = opt.isTrain
         self.save_dir = os.path.join(opt.save_path, opt.name)
-        self.gpu_ids = opt.gpu_ids
-        self.device = torch.device(f"cuda:{self.gpu_ids[0]}") if self.gpu_ids else torch.device('cpu')
+        self.device = torch.device(f"cuda:{opt.rank}") if self.rank else torch.device('cpu')
         if opt.preprocess != 'scale_width':  # with [scale_width], input images might have different sizes, which hurts the performance of cudnn.benchmark.
             torch.backends.cudnn.benchmark = True
         self.loss_names = []
