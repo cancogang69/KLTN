@@ -79,13 +79,12 @@ class Pix2PixModel(BaseModel):
         The option 'direction' can be used to swap images in domain A and domain B.
         """
         self.target_shape = target.shape[:2]
-        self.real_A = torch.Tensor(input).unsqueeze(0).unsqueeze(0).to(self.device)
-        self.real_B = torch.Tensor(target).unsqueeze(0).unsqueeze(0).to(self.device)
+        self.real_A = input.to(self.device)
+        self.real_B = target.to(self.device)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-        torch_resize = Resize(size=self.target_shape)
-        self.fake_B = torch_resize(self.netG(self.real_A)).to(self.device) # G(A)
+        self.fake_B = self.netG(self.real_A).to(self.device) # G(A)
 
 
     def forward_only(self, input):

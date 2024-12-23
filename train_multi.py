@@ -35,12 +35,12 @@ def train(rank, world_size, opt):
     for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):
         epoch_start_time = time.time()          
             
-        # for data in train_dataset:
-        #     visible_mask, invisible_mask, final_mask, _ = data
-        #     model.set_input(input=visible_mask, target=final_mask)
-        #     model.optimize_parameters()
+        for data in train_dataset:
+            visible_mask, invisible_mask, final_mask, _ = data
+            model.set_input(input=visible_mask, target=final_mask)
+            model.optimize_parameters()
 
-        # model.update_learning_rate()
+        model.update_learning_rate()
 
         if epoch % opt.val_freq == 0:
             total_iou = 0
