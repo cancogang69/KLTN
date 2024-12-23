@@ -58,7 +58,9 @@ def train(rank, world_size, opt):
                 total_iou += iou
 
                 if len(results) < result_count:
-                    results.append(predict_mask.squeeze(0).squeeze(0))
+                    results.append(predict_mask.squeeze())
+                else: 
+                    break
 
             m_iou = total_iou / val_dataset.anno_len
             for percent, values in percents_iou.items():
@@ -71,7 +73,7 @@ def train(rank, world_size, opt):
                 ncols = result_count
                 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
                 plt.suptitle(f"EPOCH : {epoch}")
-
+                print(results)
                 for i, result in enumerate(results):
                     axes[0][i].imshow(result[0], cmap="gray")
                     axes[0][i].axis("off")
