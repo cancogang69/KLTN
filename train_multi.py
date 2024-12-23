@@ -54,7 +54,7 @@ def train(rank, world_size, opt):
                 predict_mask = tensor2im(predict_mask).squeeze()
                 final_mask = tensor2im(final_mask).squeeze()
 
-                print(predict_mask)
+                # print(predict_mask)
 
                 intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
                 predict_area = (predict_mask == 1).sum()
@@ -85,9 +85,9 @@ def train(rank, world_size, opt):
                 plt.suptitle(f"EPOCH : {epoch}")
                 
                 for i, result in enumerate(results):
-                    axes[0][i].imshow([result[0]], cmap="gray")
+                    axes[0][i].imshow(Image.fromarray(result[0]), cmap="gray")
                     axes[0][i].axis("off")
-                    axes[1][i].imshow(result[1], cmap="gray")
+                    axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
                     axes[1][i].axis("off")
 
                 plt.show()
