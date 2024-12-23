@@ -14,7 +14,6 @@ from src.models import create_model
 def train(rank, world_size, opt):
     dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
 
-    opt = parse_args()
     opt.isTrain = True
     opt.rank = rank
     train_dataset = DatasetLoader(anno_path=opt.train_anno_path)
@@ -106,7 +105,7 @@ def train(rank, world_size, opt):
 
 
 if __name__ == "__main__":
-    opt = TrainOptions().parse()
+    opt = parse_args()
     world_size = torch.cuda.device_count()
     local_rank = int(os.environ["LOCAL_RANK"])
     train(local_rank, world_size, opt)
