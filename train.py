@@ -25,7 +25,7 @@ from src.models import create_model
 
 
 if __name__ == '__main__':
-    opt = parse_args  
+    opt = parse_args()
     train_dataset = DatasetLoader(anno_path=opt.train_anno_path)
     val_dataset = DatasetLoader(anno_path=opt.val_anno_path)
 
