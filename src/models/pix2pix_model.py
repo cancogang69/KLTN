@@ -53,10 +53,6 @@ class Pix2PixModel(BaseModel):
         else:  # during test time, only load G
             self.model_names = ['G']
         # define networks (both generator and discriminator)
-        # if opt.netG == "unet_256":
-        #     self.is_unet = True
-        #     self.model_input_shape = [256, 256]
-        #     self.torch_resize = Resize(size=self.model_input_shape)
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
                                       not opt.no_dropout, opt.init_type, opt.init_gain, self.rank, self.is_ddp)
 
