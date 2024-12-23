@@ -1,7 +1,7 @@
 import torch
 from .base_model import BaseModel
 from . import networks
-
+from torchvision.transforms import Resize
 
 class Pix2PixModel(BaseModel):
     """ This class implements the pix2pix model, for learning a mapping from input images to output images given paired data.
@@ -83,8 +83,8 @@ class Pix2PixModel(BaseModel):
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-        self.fake_B = self.netG(self.real_A)  # G(A)
-        print(self.netG.model)
+        torch_resize = Resize(size=self.real_B.size())
+        self.fake_B = torch_resize(self.netG(self.real_A))  # G(A)
 
     def forward_only(self):
         with torch.no_grad():
