@@ -5,7 +5,7 @@ import cv2
 
 class DatasetLoader(object):
     def __init__(self, anno_path):
-        with open(anno_path) as anno_file:
+        with open(anno_path, "r") as anno_file:
             data = json.load(anno_path)
         
         images_info = dict(
