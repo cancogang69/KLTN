@@ -99,6 +99,7 @@ def get_transform(opt, params=None, grayscale=False, method=transforms.Interpola
 
     if not opt.no_flip:
         if params is None:
+            print("Im flip man")
             transform_list.append(transforms.RandomHorizontalFlip())
         elif params['flip']:
             transform_list.append(transforms.Lambda(lambda img: __flip(img, params['flip'])))
