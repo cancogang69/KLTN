@@ -18,8 +18,8 @@ def train(rank, world_size, opt):
     opt.isTrain = True
     opt.rank = rank
     opt.is_ddp = True
-    train_dataset = DatasetLoader(anno_path=opt.train_anno_path)
-    val_dataset = DatasetLoader(anno_path=opt.val_anno_path)
+    train_dataset = DatasetLoader(opt.train_anno_path, opt)
+    val_dataset = DatasetLoader(opt.val_anno_path, opt)
 
     model = create_model(opt)
     model.setup(opt)
