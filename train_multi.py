@@ -58,7 +58,7 @@ def train(rank, world_size, opt):
                 total_iou += iou
 
                 if len(results) < result_count:
-                    results.append(predict_mask)
+                    results.append(predict_mask.squeeze(0).squeeze(0))
 
             m_iou = total_iou / val_dataset.anno_len
             for percent, values in percents_iou.items():
@@ -67,7 +67,6 @@ def train(rank, world_size, opt):
             if rank == 0:
                 if best_miou < m_iou:
                     best_miou = m_iou
-                print(results[0].shape)
                 nrows = 2
                 ncols = result_count
                 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
