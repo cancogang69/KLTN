@@ -58,7 +58,7 @@ def train(rank, world_size, opt):
                 total_iou += iou
 
                 if len(results) < result_count:
-                    result_count.append(predict_mask)
+                    results.append(predict_mask)
 
             m_iou = total_iou / val_dataset.anno_len
             for percent, values in percents_iou.items():
