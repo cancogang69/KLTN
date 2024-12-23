@@ -51,8 +51,9 @@ class DatasetLoader(object):
     def __get_mask(self, height, width, polygons):
         mask = np.zeros([height, width])
         for polygon in polygons:
+            polygon = np.array([polygon]).reshape(1, -1, 2)
             mask = cv2.fillPoly(
-                mask, np.array([polygon]), color=[255, 255, 255]
+                mask, np.array(polygon), color=[255, 255, 255]
             )
         mask[mask > 0] = 1
         return mask
