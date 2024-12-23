@@ -50,8 +50,6 @@ def train(rank, world_size, opt):
                 predict_mask = model.forward_only(visible_mask)
                 predict_mask = tensor2im(predict_mask).squeeze()
                 final_mask = tensor2im(final_mask).squeeze()
-                print(f"{opt.input_nc}")
-                print(f"{opt.output_nc=}")
                 intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
                 predict_area = (predict_mask == 1).sum()
                 target_area = (final_mask == 1).sum()

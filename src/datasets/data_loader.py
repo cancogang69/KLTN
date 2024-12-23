@@ -84,7 +84,9 @@ class DatasetLoader(object):
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
         )
+        print(f"{final_mask.shape=}")
         final_mask = self.transform(final_mask).unsqueeze(0)
+        print(f"{final_mask.size()=}")
 
 
         percent = anno["percent"]
