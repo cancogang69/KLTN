@@ -1,5 +1,4 @@
 import torch
-import cv2
 from .base_model import BaseModel
 from . import networks
 
