@@ -53,10 +53,6 @@ def train(rank, world_size, opt):
 
                 predict_mask = tensor2im(predict_mask).squeeze()
                 final_mask = tensor2im(final_mask).squeeze()
-                print(final_mask.shape)
-                print((final_mask == 1).sum())
-                print((final_mask == 0).sum())
-                exit()
                 intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
                 predict_area = (predict_mask == 1).sum()
                 target_area = (final_mask == 1).sum()
@@ -69,7 +65,7 @@ def train(rank, world_size, opt):
                 total_iou += iou
 
                 if len(results) < result_count:
-                    results.append(predict_mask.squeeze())
+                    results.append([predict_mask, final_mask])
                 else: 
                     break
 
