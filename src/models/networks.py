@@ -267,7 +267,7 @@ class GANLoss(nn.Module):
         """
         if self.gan_mode in ['lsgan', 'vanilla']:
             target_tensor = self.get_target_tensor(prediction, target_is_real)
-            loss = self.loss(prediction, target_tensor)
+            loss = self.loss(prediction.cuda(), target_tensor.cuda())
         elif self.gan_mode == 'wgangp':
             if target_is_real:
                 loss = -prediction.mean()
