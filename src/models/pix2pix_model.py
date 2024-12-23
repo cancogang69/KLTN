@@ -85,7 +85,7 @@ class Pix2PixModel(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         torch_resize = Resize(size=self.target_shape)
-        self.fake_B = torch_resize(self.netG(self.real_A))  # G(A)
+        self.fake_B = torch_resize(self.netG(self.real_A)).to(self.device) # G(A)
 
 
     def forward_only(self, input):
