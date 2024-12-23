@@ -17,8 +17,7 @@ class DatasetLoader(object):
 
         annos_info = data["annotations"]
 
-        self.A_transform = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
-        self.B_transform = get_transform(self.opt, None, grayscale=(self.opt.output_nc == 1))
+        self.transform = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
 
         self.annos = []
         for anno in annos_info:
@@ -76,7 +75,7 @@ class DatasetLoader(object):
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
-        visible_mask = self.A_transform(visible_mask).unsqueeze(0)
+        visible_mask = self.transform(visible_mask).unsqueeze(0)
 
         invisible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["invisible_segmentations"]
@@ -85,7 +84,7 @@ class DatasetLoader(object):
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
         )
-        final_mask = self.B_transform(final_mask).unsqueeze(0)
+        final_mask = self.transform(final_mask).unsqueeze(0)
 
 
         percent = anno["percent"]
