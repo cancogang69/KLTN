@@ -78,7 +78,7 @@ class Pix2PixModel(BaseModel):
 
         The option 'direction' can be used to swap images in domain A and domain B.
         """
-        self.real_A = torch.Tensor(input).cuda()
+        self.real_A = torch.Tensor(input).unsqueeze().cuda()
         self.real_B = torch.Tensor(target).cuda()
 
     def forward(self):
