@@ -95,9 +95,11 @@ class Pix2PixModel(BaseModel):
     def forward_only(self, input):
         org_input_shape = input.shape[:2]
         if self.is_unet:
-            input = self.torch_resize(input)
+            input = self.torch_resize(torch.Tensor(input))
+        else:
+            input = torch.Tensor(input)
 
-        input = torch.Tensor(input).unsqueeze(0).unsqueeze(0).to(self.device)
+        input = input.unsqueeze(0).unsqueeze(0).to(self.device)
         with torch.no_grad():
             predict = self.netG(input)
     
