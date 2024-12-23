@@ -16,8 +16,8 @@ class DatasetLoader(object):
 
         annos_info = data["annotations"]
 
-        self.A_transform = get_transform(self.opt, None, grayscale=(self.input_nc == 1))
-        self.B_transform = get_transform(self.opt, None, grayscale=(self.output_nc == 1))
+        self.A_transform = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
+        self.B_transform = get_transform(self.opt, None, grayscale=(self.opt.output_nc == 1))
 
         self.annos = []
         for anno in annos_info:
