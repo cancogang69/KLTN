@@ -88,11 +88,15 @@ class Pix2PixModel(BaseModel):
         self.fake_B = torch_resize(self.netG(self.real_A))  # G(A)
 
 
-    def forward_only(self):
+    def forward_only(self, input):
+        input_shape = input.shape[:2]
+        input = torch.Tensor(input).unsqueeze(0).unsqueeze(0).to(self.device)
         with torch.no_grad():
-            predict = self.netG(self.real_A)
-            
-        return predict
+            predict = self.netG(input)
+        torch_resize = Resize(size=input_shape)
+        predict = torch_resize(predict)
+
+        return predict.detach().cpu().numpy()
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
