@@ -42,7 +42,7 @@ if __name__ == '__main__':
             visible_mask, invisible_mask, final_mask, percent = data
             total_iters += opt.batch_size
             epoch_iter += opt.batch_size
-            model.set_input(data)
+            model.set_input(input=visible_mask, target=final_mask)
             model.optimize_parameters()
 
             iter_data_time = time.time()
