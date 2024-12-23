@@ -19,12 +19,13 @@ See training and test tips at: https://github.com/junyanz/pytorch-CycleGAN-and-p
 See frequently asked questions at: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/docs/qa.md
 """
 import time
-from src.options.train_options import TrainOptions
+from src.options.custom_options import parse_args
 from src.datasets.data_loader import DatasetLoader
 from src.models import create_model
 
+
 if __name__ == '__main__':
-    opt = TrainOptions().parse()   # get training options
+    opt = parse_args  
     train_dataset = DatasetLoader(anno_path=opt.train_anno_path)
     val_dataset = DatasetLoader(anno_path=opt.val_anno_path)
 
