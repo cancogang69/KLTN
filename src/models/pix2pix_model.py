@@ -54,11 +54,11 @@ class Pix2PixModel(BaseModel):
             self.model_names = ['G']
         # define networks (both generator and discriminator)
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
-                                      not opt.no_dropout, opt.init_type, opt.init_gain, self.device)
+                                      not opt.no_dropout, opt.init_type, opt.init_gain, self.rank, self.is_ddp)
 
         if self.isTrain:  # define a discriminator; conditional GANs need to take both input and output images; Therefore, #channels for D is input_nc + output_nc
             self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD,
-                                          opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.device)
+                                          opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.rank, self.is_ddp)
 
         if self.isTrain:
             # define loss functions
@@ -79,8 +79,8 @@ class Pix2PixModel(BaseModel):
         The option 'direction' can be used to swap images in domain A and domain B.
         """
         self.target_shape = target.shape[:2]
-        self.real_A = torch.Tensor(input).unsqueeze(0).unsqueeze(0).cuda()
-        self.real_B = torch.Tensor(target).unsqueeze(0).unsqueeze(0).cuda()
+        self.real_A = torch.Tensor(input).unsqueeze(0).unsqueeze(0).to(self.device)
+        self.real_B = torch.Tensor(target).unsqueeze(0).unsqueeze(0).to(self.device)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""

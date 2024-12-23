@@ -5,7 +5,6 @@ import torch
 import torch.distributed as dist
 import matplotlib.pyplot as plt
 
-from src.options.train_options import TrainOptions
 from src.datasets.data_loader import DatasetLoader
 from src.options.custom_options import parse_args
 from src.models import create_model
@@ -16,6 +15,7 @@ def train(rank, world_size, opt):
 
     opt.isTrain = True
     opt.rank = rank
+    opt.is_ddp = True
     train_dataset = DatasetLoader(anno_path=opt.train_anno_path)
     val_dataset = DatasetLoader(anno_path=opt.val_anno_path)
 
