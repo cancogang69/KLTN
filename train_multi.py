@@ -53,7 +53,9 @@ def train(rank, world_size, opt):
 
                 predict_mask = tensor2im(predict_mask).squeeze()
                 final_mask = tensor2im(final_mask).squeeze()
-
+                print(final_mask.shape)
+                print(final_mask)
+                exit()
                 intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
                 predict_area = (predict_mask == 1).sum()
                 target_area = (final_mask == 1).sum()
