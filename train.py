@@ -65,7 +65,7 @@ if __name__ == '__main__':
                 percents_iou[percent][1] += iou
                 total_iou += iou
 
-            m_iou = total_iou / len(val_dataset)
+            m_iou = total_iou / val_dataset.anno_len
             for percent, values in percents_iou.items():
                 percents_iou[percent] = values[1] / values[0]
 
