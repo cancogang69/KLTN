@@ -1,6 +1,7 @@
 import numpy as np
 import json
 import cv2
+from PIL import Image
 
 from src.data.base_dataset import get_transform
 
@@ -60,7 +61,8 @@ class DatasetLoader(object):
             mask = cv2.fillPoly(
                 mask, np.array(polygon), color=[255, 255, 255]
             )
-
+            
+        mask = Image.fromarray(mask)
         return mask
 
     def __next__(self):
