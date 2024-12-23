@@ -57,7 +57,7 @@ class BaseModel(ABC):
         return parser
 
     @abstractmethod
-    def set_input(self, input):
+    def set_input(self, input, target):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
 
         Parameters:

@@ -11,7 +11,7 @@ class DatasetLoader(object):
         images_info = dict(
             [[img_info["id"], img_info] for img_info in data["images"]]
         )
-        
+
         annos_info = data["annotations"]
 
         self.annos = []
@@ -74,14 +74,6 @@ class DatasetLoader(object):
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
         )
-        bbox = mask_to_bbox(visible_mask)
-        sd_feats = self.__get_feature_from_save(anno["feature_file_name"])
-        sd_feats = self.__combime_mask_with_sd_features(
-            image_height=anno["image_height"],
-            image_width=anno["image_width"],
-            bbox=bbox,
-            sd_features=sd_feats,
-        )
 
         percent = anno["percent"]
 
@@ -89,7 +81,5 @@ class DatasetLoader(object):
             visible_mask,
             invisible_mask,
             final_mask,
-            bbox,
-            sd_feats,
             percent,
         ]
