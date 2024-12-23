@@ -53,6 +53,10 @@ class Pix2PixModel(BaseModel):
         else:  # during test time, only load G
             self.model_names = ['G']
         # define networks (both generator and discriminator)
+        if opt.netG == "unet_256":
+            self.is_unet = True
+            self.model_input_shape = [256, 256]
+            self.torch_resize = Resize(size=self.model_input_shape)
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
                                       not opt.no_dropout, opt.init_type, opt.init_gain, self.rank, self.is_ddp)
 
@@ -89,11 +93,15 @@ class Pix2PixModel(BaseModel):
 
 
     def forward_only(self, input):
-        input_shape = input.shape[:2]
+        org_input_shape = input.shape[:2]
+        if self.is_unet:
+            input = self.torch_resize(input)
+
         input = torch.Tensor(input).unsqueeze(0).unsqueeze(0).to(self.device)
         with torch.no_grad():
             predict = self.netG(input)
-        torch_resize = Resize(size=input_shape)
+    
+        torch_resize = Resize(size=org_input_shape)
         predict = torch_resize(predict)
 
         return predict.detach().cpu().numpy()
