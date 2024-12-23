@@ -30,6 +30,7 @@ def parse_args():
     parser.add_argument('--pool-size', type=int, default=50, help='the size of image buffer that stores previously generated images')
     parser.add_argument('--lr-policy', type=str, default='linear', help='learning rate policy. [linear | step | plateau | cosine]')
     parser.add_argument('--lr-decay-iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
+    parser.add_argument("--save-path", type=str, default="checkpoints")
     # validation parameters
     parser.add_argument("--val-freq", type=int, default=2, help="th number of epochs until validation")
     # dataset parameters
