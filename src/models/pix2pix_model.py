@@ -97,7 +97,7 @@ class Pix2PixModel(BaseModel):
         with torch.no_grad():
             predict = self.netG(input)
 
-        return predict.detach().cpu().numpy()
+        return predict.detach().cpu()
 
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""

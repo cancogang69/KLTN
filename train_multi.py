@@ -47,7 +47,7 @@ def train(rank, world_size, opt):
                 
                 visible_mask, invisible_mask, final_mask, percent = data
                 predict_mask = model.forward_only(visible_mask)
-                print(f"{predict_mask.size()=}")
+                print(f"{predict_mask.size}")
                 predict_mask = tensor2im(predict_mask).squeeze()
                 final_mask = tensor2im(final_mask).squeeze()
                 intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
