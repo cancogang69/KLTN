@@ -61,7 +61,7 @@ class DatasetLoader(object):
             mask = cv2.fillPoly(
                 mask, np.array(polygon), color=[255, 255, 255]
             )
-            
+
         mask = Image.fromarray(mask)
         return mask
 
@@ -76,7 +76,7 @@ class DatasetLoader(object):
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
-        visible_mask = self.A_transform(visible_mask)
+        visible_mask = self.A_transform(visible_mask).unsqueeze(0)
 
         invisible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["invisible_segmentations"]
@@ -85,7 +85,7 @@ class DatasetLoader(object):
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
         )
-        final_mask = self.B_transform(final_mask)
+        final_mask = self.B_transform(final_mask).unsqueeze(0)
 
 
         percent = anno["percent"]
