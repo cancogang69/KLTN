@@ -111,6 +111,7 @@ def init_net(net, init_type='normal', init_gain=0.02, rank=None, is_dpp=False):
     """
     if is_dpp:
         assert(torch.cuda.is_available())
+        net.to(torch.device(f"cuda:{rank}"))
         net = DDP(net, device_ids=[rank])
     init_weights(net, init_type, init_gain=init_gain)
     return net
