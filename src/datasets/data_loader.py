@@ -9,7 +9,7 @@ class DatasetLoader(object):
     def __init__(self, anno_path, opt):
         with open(anno_path, "r") as anno_file:
             data = json.load(anno_file)
-        
+        self.opt = opt
         images_info = dict(
             [[img_info["id"], img_info] for img_info in data["images"]]
         )
@@ -79,7 +79,7 @@ class DatasetLoader(object):
         invisible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["invisible_segmentations"]
         )
-        
+
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
         )
