@@ -52,7 +52,7 @@ def train(rank, world_size, opt):
             for data in val_dataset:
                 visible_mask, invisible_mask, final_mask, percent = data
 
-                model.set_input(data)
+                model.set_input(input=visible_mask, target= final_mask)
                 model.forward_only()
 
                 if percent not in percents_iou:
