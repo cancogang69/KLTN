@@ -2,9 +2,11 @@ import numpy as np
 import json
 import cv2
 
+from src.data.base_dataset import get_transform
+
 
 class DatasetLoader(object):
-    def __init__(self, anno_path):
+    def __init__(self, anno_path, opt):
         with open(anno_path, "r") as anno_file:
             data = json.load(anno_file)
         
@@ -13,6 +15,9 @@ class DatasetLoader(object):
         )
 
         annos_info = data["annotations"]
+
+        self.A_transform = get_transform(self.opt, None, grayscale=(self.input_nc == 1))
+        self.B_transform = get_transform(self.opt, None, grayscale=(self.output_nc == 1))
 
         self.annos = []
         for anno in annos_info:
@@ -55,7 +60,7 @@ class DatasetLoader(object):
             mask = cv2.fillPoly(
                 mask, np.array(polygon), color=[255, 255, 255]
             )
-        mask[mask > 0] = 1
+
         return mask
 
     def __next__(self):
@@ -69,12 +74,17 @@ class DatasetLoader(object):
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
+        visible_mask = self.A_transform(visible_mask)
+
         invisible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["invisible_segmentations"]
         )
+        
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
         )
+        final_mask = self.B_transform(final_mask)
+
 
         percent = anno["percent"]
 

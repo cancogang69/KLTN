@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from src.datasets.data_loader import DatasetLoader
 from src.options.custom_options import parse_args
 from src.models import create_model
+from src.utils.util import tensor2im
 
 
 def train(rank, world_size, opt):
@@ -46,7 +47,7 @@ def train(rank, world_size, opt):
                 visible_mask, invisible_mask, final_mask, percent = data
                 
                 predict_mask = model.forward_only(visible_mask)
-
+                predict_mask = tensor2im(predict_mask)
                 intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
                 predict_area = (predict_mask == 1).sum()
                 target_area = (final_mask == 1).sum()
@@ -74,8 +75,7 @@ def train(rank, world_size, opt):
                 ncols = result_count
                 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
                 plt.suptitle(f"EPOCH : {epoch}")
-                print(results[0].shape)
-                print(results[0])
+                
                 for i, result in enumerate(results):
                     axes[0][i].imshow([result[0]], cmap="gray")
                     axes[0][i].axis("off")
