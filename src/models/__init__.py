@@ -21,6 +21,7 @@ See our template model class 'template_model.py' for more details.
 import importlib
 from src.models.base_model import BaseModel
 from src.models.pix2pix_model import Pix2PixModel
+from src.models.pix2pix_generator import Pix2PixGenerator
 
 
 def find_model_using_name(model_name):
@@ -64,6 +65,8 @@ def create_model(opt):
     """
     if opt.model == "pix2pix":
         instance = Pix2PixModel(opt)
+    elif opt.model == "pix2pix_gen":
+        instance = Pix2PixGenerator(opt)
     else:
         model = find_model_using_name(opt.model)
         instance = model(opt)
