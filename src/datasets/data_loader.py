@@ -73,14 +73,14 @@ class DatasetLoader(object):
         img_path = f"{self.opt.image_root}/{anno['image_file_name']}"
         img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         image_h, image_w = img.shape[:2]
-        black_img = np.zeros(img)
+        white_img = np.zeros(img, [255])
 
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
         print(img.shape)
         print(visible_mask.shape)
-        visible_mask = cv2.bitwise_and(img, black_img, mask=visible_mask)
+        visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)
         visible_mask = self.transform(Image.fromarray(visible_mask)).unsqueeze(0)
 
         invisible_mask = self.__get_mask(
@@ -91,7 +91,7 @@ class DatasetLoader(object):
             image_h, image_w, anno["mask"]["segmentations"]
         )
 
-        final_mask = cv2.bitwise_and(img, black_img, mask=final_mask)
+        final_mask = cv2.bitwise_and(img, white_img, mask=final_mask)
         final_mask = self.transform(Image.fromarray(final_mask)).unsqueeze(0)
 
         percent = anno["percent"]
