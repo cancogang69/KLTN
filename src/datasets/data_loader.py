@@ -71,7 +71,8 @@ class DatasetLoader(object):
         self.curr_idx += 1
         image_h, image_w = anno["image_height"], anno["image_width"]
 
-        img = cv2.imread(anno["image_file_name"], cv2.IMREAD_GRAYSCALE)
+        img_path = f"{self.opt.image_root}/{anno['image_file_name']}"
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         black_img = np.full_like(img, fill_value=(255))
 
         visible_mask = self.__get_mask(
