@@ -31,13 +31,15 @@ def parse_args():
     parser.add_argument('--lr-policy', type=str, default='linear', help='learning rate policy. [linear | step | plateau | cosine]')
     parser.add_argument('--lr-decay-iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
     parser.add_argument("--save-path", type=str, default="checkpoints")
-    parser.add_argument('--lambda_L1', type=float, default=100.0, help='weight for L1 loss')
+    parser.add_argument('--loss-type', type=float, default="l1", help='loss function [l1, cross_entropy]')
+    parser.add_argument('--lambda-L1', type=float, default=100.0, help='weight for L1 loss')
     # validation parameters
     parser.add_argument("--val-freq", type=int, default=2, help="th number of epochs until validation")
     parser.add_argument("--plot-save-path", type=str, default="val_output")
     # dataset parameters
     parser.add_argument("--train-anno-path", type=str, required=True, help="path to the train json annotation file")
     parser.add_argument("--val-anno-path", type=str, required=True, help="path to the validation json annotation file")
+    parser.add_argument('--image-root', type=str)
     parser.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
     parser.add_argument('--direction', type=str, default='AtoB', help='AtoB or BtoA')
     parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')

@@ -32,7 +32,6 @@ class Pix2PixModel(BaseModel):
         parser.set_defaults(norm='batch', netG='unet_256', dataset_mode='aligned')
         if is_train:
             parser.set_defaults(pool_size=0, gan_mode='vanilla')
-            parser.add_argument('--lambda_L1', type=float, default=100.0, help='weight for L1 loss')
 
         return parser
 
@@ -63,7 +62,15 @@ class Pix2PixModel(BaseModel):
         if self.isTrain:
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
-            self.criterionL1 = torch.nn.L1Loss()
+
+            if self.opt.loss_type == "l1":
+                self.criterionPixel = torch.nn.L1Loss()
+            elif self.opt.loss_type == "cross_entropy":
+                print("Using cross entropy loss function")
+                self.criterionPixel = torch.nn.CrossEntropyLoss()
+            else:
+                raise Exception(f"The {self.opt.loss_type} loss function is not supported")
+            
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
@@ -115,9 +122,11 @@ class Pix2PixModel(BaseModel):
         pred_fake = self.netD(fake_AB)
         self.loss_G_GAN = self.criterionGAN(pred_fake, True)
         # Second, G(A) = B
-        self.loss_G_L1 = self.criterionL1(self.fake_B, self.real_B) * self.opt.lambda_L1
+        self.loss_G_pixel = self.criterionPixel(self.fake_B, self.real_B) * self.opt.lambda_L1
+        if self.opt.loss_type == "l1":
+            self.loss_G_pixel = self.loss_G_pixel * self.opt.lambda_L1
         # combine loss and calculate gradients
-        self.loss_G = self.loss_G_GAN.to(self.device) + self.loss_G_L1.to(self.device)
+        self.loss_G = self.loss_G_GAN.to(self.device) + self.loss_G_pixel.to(self.device)
         self.loss_G.backward()
 
     def optimize_parameters(self):
