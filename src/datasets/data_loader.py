@@ -80,7 +80,6 @@ class DatasetLoader(object):
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
-        print(visible_mask)
         visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)
         visible_mask = self.transform(Image.fromarray(visible_mask)).unsqueeze(0)
 
