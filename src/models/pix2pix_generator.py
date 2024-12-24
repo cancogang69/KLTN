@@ -57,7 +57,7 @@ class Pix2PixGenerator(BaseModel):
 
         if self.isTrain:
             # define loss functions
-            self.criterionBCE = torch.nn.CrossEntropyLoss()
+            self.criterionBCE = torch.nn.BCELoss()
             
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
