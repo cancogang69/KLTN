@@ -73,7 +73,7 @@ class DatasetLoader(object):
         img_path = f"{self.opt.image_root}/{anno['image_file_name']}"
         img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
         image_h, image_w = img.shape[:2]
-        white_img = np.zeros(img, [255])
+        white_img = np.zeros(img, 255)
 
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
