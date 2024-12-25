@@ -90,7 +90,6 @@ class DatasetLoader(object):
 
         return [
             visible_mask,
-            invisible_mask,
             final_mask,
             percent,
         ]

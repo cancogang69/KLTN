@@ -36,7 +36,7 @@ def train(rank, world_size, opt):
         epoch_start_time = time.time()          
             
         for data in train_dataset:
-            visible_mask, invisible_mask, final_mask, _ = data
+            visible_mask, final_mask, _ = data
             model.set_input(input=visible_mask, target=final_mask)
             model.optimize_parameters()
 
@@ -48,7 +48,7 @@ def train(rank, world_size, opt):
             results = []
             for data in val_dataset:
                 
-                visible_mask, invisible_mask, final_mask, percent = data
+                visible_mask, final_mask, percent = data
                 predict_mask = model.forward_only(visible_mask)
 
                 predict_mask = tensor2im(predict_mask).squeeze()
