@@ -30,20 +30,16 @@ class DatasetLoader(object):
             else:
                 black_end = anno["last_col"] + 1
 
-            feature_file_name = (
-                f"{img_info['file_name'].split('.')[0]}_{anno['id']}.pt"
-            )
-
             self.annos.append(
                 {
                     "mask": anno,
                     "image_file_name": img_info["file_name"],
-                    "feature_file_name": feature_file_name,
                     "image_height": img_info["height"],
                     "image_width": img_info["width"],
                     "black_start": black_start,
                     "black_end": black_end,
                     "percent": anno["percent"],
+                    "category_id": anno["category_id"]
                 }
             )
 
