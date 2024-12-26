@@ -5,6 +5,8 @@ def parse_args():
     # network saving and loading parameters
     parser.add_argument('--name', type=str, default='experiment_name', help='name of the experiment. It decides where to store samples and models')
     parser.add_argument('--model', type=str, default='cycle_gan', help='chooses which model to use. [cycle_gan | pix2pix | test | colorization]')
+    parser.add_argument('--model-generator-path', type=str)
+    parser.add_argument('--model-discriminator-path', type=str)
     parser.add_argument('--input-nc', type=int, default=1, help='# of input image channels: 3 for RGB and 1 for grayscale')
     parser.add_argument('--output-nc', type=int, default=1, help='# of output image channels: 3 for RGB and 1 for grayscale')
     parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in the last conv layer')

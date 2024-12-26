@@ -173,30 +173,31 @@ class BaseModel(ABC):
         else:
             self.__patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
 
-    def load_networks(self, epoch):
+    def load_networks(self, generator_path, discriminator_path, is_train = True):
         """Load all the networks from the disk.
 
         Parameters:
             epoch (int) -- current epoch; used in the file name '%s_net_%s.pth' % (epoch, name)
         """
-        for name in self.model_names:
-            if isinstance(name, str):
-                load_filename = '%s_net_%s.pth' % (epoch, name)
-                load_path = os.path.join(self.save_dir, load_filename)
-                net = getattr(self, 'net' + name)
-                if isinstance(net, torch.nn.DataParallel):
-                    net = net.module
-                print('loading the model from %s' % load_path)
-                # if you are using PyTorch newer than 0.4 (e.g., built from
-                # GitHub source), you can remove str() on self.device
-                state_dict = torch.load(load_path, map_location=str(self.device))
-                if hasattr(state_dict, '_metadata'):
-                    del state_dict._metadata
+        g_net =  getattr(self, 'netG')
+        print('loading the model from %s' % generator_path)
+        g_state_dict = torch.load(generator_path, map_location=str(self.device))
+        if hasattr(g_state_dict, '_metadata'):
+            del g_state_dict._metadata
+        for key in list(g_state_dict.keys()):  # need to copy keys here because we mutate in loop
+            self.__patch_instance_norm_state_dict(g_state_dict, g_net, key.split('.'))
+        g_net.load_state_dict(g_state_dict)
 
-                # patch InstanceNorm checkpoints prior to 0.4
-                for key in list(state_dict.keys()):  # need to copy keys here because we mutate in loop
-                    self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
-                net.load_state_dict(state_dict)
+        if is_train:
+            d_net =  getattr(self, 'netG')
+            print('loading the model from %s' % discriminator_path)
+            d_state_dict = torch.load(discriminator_path, map_location=str(self.device))
+            if hasattr(d_state_dict, '_metadata'):
+                del d_state_dict._metadata
+            for key in list(d_state_dict.keys()):  # need to copy keys here because we mutate in loop
+                self.__patch_instance_norm_state_dict(d_state_dict, d_net, key.split('.'))
+            d_net.load_state_dict(d_state_dict)
+
 
     def print_networks(self, verbose):
         """Print the total number of parameters in the network and (if verbose) network architecture

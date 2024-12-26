@@ -23,6 +23,7 @@ def train(rank, world_size, opt):
 
     model = create_model(opt)
     model.setup(opt)
+    model.load_networks(opt.model_generator_path, opt.model_discriminator_path, opt.isTrain)
 
     if not os.path.exists(opt.plot_save_path) and rank == 0:
         os.makedirs(opt.plot_save_path)
@@ -72,8 +73,10 @@ def train(rank, world_size, opt):
                 percents_iou[percent] = values[1] / values[0]
 
             if rank == 0:
+                save_best = False
                 if best_miou < m_iou:
                     best_miou = m_iou
+                    save_best = True
                 nrows = 2
                 ncols = result_count
                 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
@@ -85,15 +88,13 @@ def train(rank, world_size, opt):
                     axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
                     axes[1][i].axis("off")
 
-                plt.show()
-
                 fig.savefig(f"{opt.plot_save_path}/epoch_{epoch}_result.jpg")
 
                 print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
                 for percent, m_iou in percents_iou.items():
                     print(f"percent {percent}, mean IoU: {m_iou}")
 
-                if best_miou == m_iou:
+                if save_best:
                     print(f"saving the model at the end of epoch {epoch}")
                     model.save_networks("best")
 

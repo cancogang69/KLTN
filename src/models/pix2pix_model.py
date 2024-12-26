@@ -1,7 +1,6 @@
 import torch
 from .base_model import BaseModel
 from . import networks
-from torchvision.transforms import Resize
 
 class Pix2PixModel(BaseModel):
     """ This class implements the pix2pix model, for learning a mapping from input images to output images given paired data.
@@ -66,7 +65,6 @@ class Pix2PixModel(BaseModel):
             if self.opt.loss_type == "l1":
                 self.criterionPixel = torch.nn.L1Loss()
             elif self.opt.loss_type == "cross_entropy":
-                print("Using cross entropy loss function")
                 self.criterionPixel = torch.nn.CrossEntropyLoss()
             else:
                 raise Exception(f"The {self.opt.loss_type} loss function is not supported")
@@ -85,7 +83,6 @@ class Pix2PixModel(BaseModel):
 
         The option 'direction' can be used to swap images in domain A and domain B.
         """
-        self.target_shape = target.shape[:2]
         self.real_A = input.to(self.device)
         self.real_B = target.to(self.device)
 
