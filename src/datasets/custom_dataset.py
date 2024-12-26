@@ -77,7 +77,7 @@ class CustomDataset(object):
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
         label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
-        label_segment = self.transform_label_mask(label_segment)
+        label_segment = self.transform_label_mask(Image.fromarray(label_segment))
 
         if self.opt.is_gray:
             visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)

@@ -17,8 +17,6 @@ def train(rank, world_size, opt):
     dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
     checkpoint_save_path = "checkpoints/mask_generator"
 
-    print(opt.load_size)
-
     opt.isTrain = True
     opt.rank = rank
     opt.is_ddp = True
