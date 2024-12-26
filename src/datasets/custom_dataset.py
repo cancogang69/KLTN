@@ -3,7 +3,9 @@ import json
 import cv2
 from PIL import Image
 
-from src.data.base_dataset import get_transform
+import torch
+
+from src.data.base_dataset import get_transform, get_label_segment_transform
 
 
 class CustomDataset(object):
@@ -15,12 +17,9 @@ class CustomDataset(object):
             [[img_info["id"], img_info] for img_info in data["images"]]
         )
 
-        annos_info = data["annotations"]
-
-        self.transform = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
-
+        self.categories = [cate["id"] for cate in data["categories"]]
         self.annos = []
-        for anno in annos_info:
+        for anno in data["annotations"]:
             img_info = images_info[anno["image_id"]]
             black_start = 0
             black_end = 0
@@ -43,6 +42,9 @@ class CustomDataset(object):
                 }
             )
 
+        self.transform_img = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
+        self.transform_label_mask = get_label_segment_transform(opt.load_size)
+
     def __len__(self):
         return len(self.annos)
 
@@ -57,6 +59,11 @@ class CustomDataset(object):
             mask[mask>1] = 1
         mask = mask.astype(np.uint8)
         return mask
+    
+    def __get_label_segment(self, mask, label_id):
+        label_segment = mask.copy()
+        label_segment[label_segment > 128] = label_id
+        return label_segment
 
     def __getitem__(self, idx):
         anno = self.annos[idx]
@@ -69,10 +76,15 @@ class CustomDataset(object):
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
+        label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
+        label_segment = self.transform_label_mask(label_segment)
+
         if self.opt.is_gray:
             visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)
 
-        visible_mask = self.transform(Image.fromarray(visible_mask))
+        visible_mask = self.transform_img(Image.fromarray(visible_mask))
+
+        input_data = torch.cat((visible_mask, label_segment), 0)
 
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
@@ -81,12 +93,12 @@ class CustomDataset(object):
         if self.opt.is_gray:
             final_mask = cv2.bitwise_and(img, white_img, mask=final_mask)
 
-        final_mask = self.transform(Image.fromarray(final_mask))
+        final_mask = self.transform_img(Image.fromarray(final_mask))
 
         percent = anno["percent"]
 
         return [
-            visible_mask,
+            input_data,
             final_mask,
             percent,
         ]

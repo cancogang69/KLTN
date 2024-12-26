@@ -77,6 +77,16 @@ def get_params(opt, size):
 
     return {'crop_pos': (x, y), 'flip': flip}
 
+def get_label_segment_transform(load_size, method=transforms.InterpolationMode.BICUBIC):
+    transform_list = []
+    if load_size is not None:
+        osize = [load_size,load_size]
+        transform_list.append(transforms.Resize(osize, method))
+    
+    transform_list += [transforms.ToTensor()]
+    transform_list += [transforms.Normalize((0.5,), (0.5,))]
+
+    return transforms.Compose(transform_list)
 
 def get_transform(opt, params=None, grayscale=False, method=transforms.InterpolationMode.BICUBIC, convert=True):
     transform_list = []

@@ -51,6 +51,7 @@ class Pix2PixModel(BaseModel):
         else:  # during test time, only load G
             self.model_names = ['G']
         # define networks (both generator and discriminator)
+        opt.input_nc = opt.input_nc += 1
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout)
         if self.opt.model_generator_path is not None:
             self.load_network(self.opt.model_generator_path, "G")
@@ -78,6 +79,8 @@ class Pix2PixModel(BaseModel):
                 self.criterionPixel = torch.nn.L1Loss()
             elif self.opt.loss_type == "cross_entropy":
                 self.criterionPixel = torch.nn.CrossEntropyLoss()
+            elif self.opt.loss_type == "none":
+                self.criterionPixel = None
             else:
                 raise Exception(f"The {self.opt.loss_type} loss function is not supported")
             
@@ -131,11 +134,10 @@ class Pix2PixModel(BaseModel):
         pred_fake = self.netD(fake_AB)
         self.loss_G_GAN = self.criterionGAN(pred_fake, True)
         # Second, G(A) = B
-        self.loss_G_pixel = self.criterionPixel(self.fake_B, self.real_B) * self.opt.lambda_L1
-        if self.opt.loss_type == "l1":
-            self.loss_G_pixel = self.loss_G_pixel * self.opt.lambda_L1
-        # combine loss and calculate gradients
+
+        self.loss_G_pixel = self.loss_G_pixel * self.opt.lambda_L1
         self.loss_G = self.loss_G_GAN.to(self.device) + self.loss_G_pixel.to(self.device)
+            
         self.loss_G.backward()
 
     def optimize_parameters(self):
@@ -149,4 +151,6 @@ class Pix2PixModel(BaseModel):
         self.set_requires_grad(self.netD, False)  
         self.optimizer_G.zero_grad()       
         self.backward_G()                   
-        self.optimizer_G.step()           
+        self.optimizer_G.step()
+
+        return self.loss_G.item(), self.loss_D.item()        

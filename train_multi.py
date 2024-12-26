@@ -17,6 +17,8 @@ def train(rank, world_size, opt):
     dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
     checkpoint_save_path = "checkpoints/mask_generator"
 
+    print(opt.load_size)
+
     opt.isTrain = True
     opt.rank = rank
     opt.is_ddp = True
@@ -38,13 +40,36 @@ def train(rank, world_size, opt):
 
     best_miou = 0
     result_count = 5
+    epoch_losses = {"gen": [], "dis": []}
     for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):
         epoch_start_time = time.time()          
             
+        this_epoch_losses = {"num": 0, "gen": 0, "dis": 0}
+
         for data in train_loader:
-            visible_masks, final_masks, _ = data
-            model.set_input(input=visible_masks, target=final_masks)
-            model.optimize_parameters()
+            input_datas, final_masks, _ = data
+            model.set_input(input=input_datas, target=final_masks)
+            gen_loss, dis_loss = model.optimize_parameters()
+
+            this_epoch_losses["num"] += 1
+            this_epoch_losses["gen"] += gen_loss
+            this_epoch_losses["dis"] += dis_loss
+
+        epoch_losses["gen"].append(this_epoch_losses["gen"]/this_epoch_losses["num"])
+        epoch_losses["dis"].append(this_epoch_losses["dis"]/this_epoch_losses["num"])
+
+        if rank == 0:
+            fig, axs = plt.subplots(1, 1)
+            axs.set_xlabel("epoch")
+            axs.set_ylabel("loss")
+            axs.set_title("Loss per epoch")
+
+            epoch_nums = range(1, len(epoch_losses["gen"])+1)
+            axs.plot(epoch_losses["gen"], epoch_nums, label="line1")
+            axs.plot(epoch_losses["dis"], epoch_nums, label="line2")
+            axs.xaxis.get_major_locator().set_params(integer=True)
+            axs.legend()
+            fig.savefig(f"{opt.plot_save_path}/losses_plot.jpg")
 
         model.update_learning_rate()
 
@@ -54,8 +79,8 @@ def train(rank, world_size, opt):
             results = []
             for data in val_loader:
                 
-                visible_masks, final_masks, percents = data
-                predict_masks = model.forward_only(visible_masks)
+                input_datas, final_masks, percents = data
+                predict_masks = model.forward_only(input_datas)
 
                 for predict_mask, final_mask, percent in zip(predict_masks, final_masks, percents):
                     predict_mask = tensor2im(predict_mask).squeeze()
@@ -75,13 +100,6 @@ def train(rank, world_size, opt):
 
                     if len(results) < result_count:
                         results.append([predict_mask, final_mask])
-
-            
-            # for key in percents:
-            #     print(f"{key}: {type(key)=}")
-
-            # for key, value in percents_iou.items():
-            #     print(f"{key}: {value}")
 
             m_iou = total_iou / len(val_dataset)
             for percent, values in percents_iou.items():
