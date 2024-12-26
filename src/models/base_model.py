@@ -173,7 +173,7 @@ class BaseModel(ABC):
         else:
             self.__patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
 
-    def load_networks(self, network_path, network_type="G"):
+    def load_network(self, network_path, network_type="G"):
         """Load all the networks from the disk.
 
         Parameters:
