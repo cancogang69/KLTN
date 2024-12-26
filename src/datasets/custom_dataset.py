@@ -81,7 +81,7 @@ class CustomDataset(object):
         if self.opt.is_gray:
             final_mask = cv2.bitwise_and(img, white_img, mask=final_mask)
 
-        final_mask = self.transform(Image.fromarray(final_mask)).unsqueeze(0)
+        final_mask = self.transform(Image.fromarray(final_mask))
 
         percent = anno["percent"]
 
