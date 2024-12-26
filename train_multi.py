@@ -68,6 +68,7 @@ def train(rank, world_size, opt):
             axs.xaxis.get_major_locator().set_params(integer=True)
             axs.legend()
             fig.savefig(f"{opt.plot_save_path}/losses_plot.jpg")
+            plt.close(fig)
 
         model.update_learning_rate()
 
@@ -120,6 +121,7 @@ def train(rank, world_size, opt):
                     axes[1][i].axis("off")
 
                 fig.savefig(f"{opt.plot_save_path}/epoch_{epoch}_result.jpg")
+                plt.close(fig)
 
                 print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
                 for percent, m_iou in percents_iou.items():

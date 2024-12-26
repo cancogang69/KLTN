@@ -84,7 +84,7 @@ def get_label_segment_transform(load_size, method=transforms.InterpolationMode.B
         transform_list.append(transforms.Resize(osize, method))
     
     transform_list += [transforms.ToTensor()]
-    transform_list += [transforms.Normalize((0.5,), (0.5,))]
+    transform_list += [transforms.Normalize((6.234,), (3.134,))]
 
     return transforms.Compose(transform_list)
 
