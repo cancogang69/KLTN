@@ -29,9 +29,6 @@ def train(rank, world_size, opt):
     model = create_model(opt)
     model.setup(opt)
 
-    if not os.path.exists(opt.plot_save_path) and rank == 0:
-        os.makedirs(opt.plot_save_path)
-
     if not os.path.exists(checkpoint_save_path) and rank == 0:
         os.makedirs(checkpoint_save_path)
 
