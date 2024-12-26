@@ -88,6 +88,8 @@ class CustomDataset(object):
 
         if self.opt.use_label:
             input_data = torch.cat((visible_mask, label_segment), 0)
+        else:
+            input_data = visible_mask
 
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
