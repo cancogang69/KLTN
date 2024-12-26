@@ -181,7 +181,7 @@ class BaseModel(ABC):
         """
         g_net =  getattr(self, 'netG')
         print('loading the model from %s' % generator_path)
-        g_state_dict = torch.load(generator_path, map_location=str(self.device), weights_only=True)
+        g_state_dict = torch.load(generator_path, map_location=str(self.device))
         # if hasattr(g_state_dict, '_metadata'):
         #     del g_state_dict._metadata
         # for key in list(g_state_dict.keys()):
