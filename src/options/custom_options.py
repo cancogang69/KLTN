@@ -31,6 +31,7 @@ def parse_args():
     parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')
     parser.add_argument('--gan-mode', type=str, default='vanilla', help='the type of GAN objective. [vanilla| lsgan | wgangp]. vanilla GAN loss is the cross-entropy objective used in the original GAN paper.')
     parser.add_argument('--pool-size', type=int, default=50, help='the size of image buffer that stores previously generated images')
+    parser.add_argument('--optimizer-type', type=str, default='adam', help='[adam | sgd')
     parser.add_argument('--lr-policy', type=str, default='linear', help='learning rate policy. [linear | step | plateau | cosine]')
     parser.add_argument('--lr-decay-iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
     parser.add_argument("--save-path", type=str, default="checkpoints")

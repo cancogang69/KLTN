@@ -53,7 +53,7 @@ class Pix2PixModel(BaseModel):
         # define networks (both generator and discriminator)
         if opt.use_label:
             opt.input_nc = opt.input_nc + 1
-            
+
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout)
         if self.opt.model_generator_path is not None:
             self.load_network(self.opt.model_generator_path, "G")
@@ -87,7 +87,13 @@ class Pix2PixModel(BaseModel):
                 raise Exception(f"The {self.opt.loss_type} loss function is not supported")
             
             # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
-            self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+            if self.opt.optimizer_type == "adam":
+                self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+            elif self.opt.optimizer_type == "sgd":
+                self.optimizer_G = torch.optim.SGD(self.netG.parameters(), lr=opt.lr, momentum=0.9)
+            else:
+                raise Exception(f"Does not implement {self.opt.optimizer_type} optimizer")
+
             self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
