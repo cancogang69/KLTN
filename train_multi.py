@@ -95,9 +95,9 @@ def train(rank, world_size, opt):
 
                 if best_miou == m_iou:
                     print(f"saving the model at the end of epoch {epoch}")
-                    model.save_networks('best')
+                    model.save_networks("best")
 
-                model.save_networks(epoch)
+                model.save_networks("last")
 
             
 
