@@ -101,6 +101,8 @@ class Pix2PixModel(BaseModel):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         print(self.real_A)
+        print(self.device)
+        print(self.real_A.is_cuda)
         self.fake_B = self.netG(self.real_A).to(self.device) # G(A)
 
 
