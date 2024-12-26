@@ -58,7 +58,7 @@ class Pix2PixModel(BaseModel):
             networks.init_weights(self.netG, opt.init_type, opt.init_gain)
 
         if self.is_ddp:
-            networks.to_ddp(self.netG, self.rank, self.is_dpp)
+            networks.to_ddp(self.netG, self.rank, self.is_ddp)
 
         if self.isTrain:
             self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm)
@@ -68,7 +68,7 @@ class Pix2PixModel(BaseModel):
                 networks.init_weights(self.netD, opt.init_type, opt.init_gain)
 
             if self.is_ddp:
-                networks.to_ddp(self.netG, self.rank, self.is_dpp)
+                networks.to_ddp(self.netG, self.rank, self.is_ddp)
 
         if self.isTrain:
             # define loss functions

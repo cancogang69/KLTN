@@ -185,7 +185,6 @@ class BaseModel(ABC):
         if hasattr(state_dict, '_metadata'):
             del state_dict._metadata
         for key in list(state_dict.keys()):
-            print(key)
             self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
         net.load_state_dict(state_dict)
 
