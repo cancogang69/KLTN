@@ -57,7 +57,7 @@ class Pix2PixModel(BaseModel):
         else:
             networks.init_weights(self.netG, opt.init_type, opt.init_gain)
 
-        if opt.is_ddp:
+        if self.opt.is_ddp:
             networks.to_ddp(self.netG, self.rank)
 
         if self.isTrain:
@@ -67,7 +67,7 @@ class Pix2PixModel(BaseModel):
             else:
                 networks.init_weights(self.netD, opt.init_type, opt.init_gain)
 
-            if opt.is_ddp:
+            if self.opt.is_ddp:
                 networks.to_ddp(self.netG, self.rank)
 
         if self.isTrain:
