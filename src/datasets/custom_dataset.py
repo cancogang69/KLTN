@@ -76,15 +76,18 @@ class CustomDataset(object):
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
-        label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
-        label_segment = self.transform_label_mask(Image.fromarray(label_segment))
+
+        if self.opt.use_label:
+            label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
+            label_segment = self.transform_label_mask(Image.fromarray(label_segment))
 
         if self.opt.is_gray:
             visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)
 
         visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
-        input_data = torch.cat((visible_mask, label_segment), 0)
+        if self.opt.use_label:
+            input_data = torch.cat((visible_mask, label_segment), 0)
 
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
