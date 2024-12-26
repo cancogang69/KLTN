@@ -74,6 +74,12 @@ def train(rank, world_size, opt):
                     if len(results) < result_count:
                         results.append([predict_mask, final_mask])
 
+            for key in percents:
+                print(f"{key}: {type(key)=}")
+
+            for key, value in percents_iou.items():
+                print(f"{key}: {value}")
+
             m_iou = total_iou / len(val_dataset)
             for percent, values in percents_iou.items():
                 percents_iou[percent] = values[1] / values[0]
