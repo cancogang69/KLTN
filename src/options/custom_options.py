@@ -37,6 +37,7 @@ def parse_args():
     parser.add_argument('--lambda-L1', type=float, default=100.0, help='weight for L1 loss')
     # validation parameters
     parser.add_argument("--val-freq", type=int, default=2, help="th number of epochs until validation")
+    parser.add_argument("--plot-save-path", type=str, default="val_plot")
     # dataset parameters
     parser.add_argument("--train-anno-path", type=str, required=True, help="path to the train json annotation file")
     parser.add_argument("--val-anno-path", type=str, required=True, help="path to the validation json annotation file")

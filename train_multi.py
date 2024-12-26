@@ -16,6 +16,7 @@ from src.utils.util import tensor2im
 def train(rank, world_size, opt):
     dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
     checkpoint_save_path = "checkpoints/mask_generator"
+
     opt.isTrain = True
     opt.rank = rank
     opt.is_ddp = True
@@ -28,6 +29,9 @@ def train(rank, world_size, opt):
 
     model = create_model(opt)
     model.setup(opt)
+
+    if not os.path.exists(opt.plot_save_path) and rank == 0:
+        os.makedirs(opt.plot_save_path)
 
     if not os.path.exists(checkpoint_save_path) and rank == 0:
         os.makedirs(checkpoint_save_path)
