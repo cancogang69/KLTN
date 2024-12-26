@@ -37,12 +37,13 @@ def parse_args():
     parser.add_argument('--lambda-L1', type=float, default=100.0, help='weight for L1 loss')
     # validation parameters
     parser.add_argument("--val-freq", type=int, default=2, help="th number of epochs until validation")
-    parser.add_argument("--plot-save-path", type=str, default="val_output")
     # dataset parameters
     parser.add_argument("--train-anno-path", type=str, required=True, help="path to the train json annotation file")
     parser.add_argument("--val-anno-path", type=str, required=True, help="path to the validation json annotation file")
     parser.add_argument('--image-root', type=str)
-    parser.add_argument("--is-gray", type=str, default=False)
+    parser.add_argument("--batch-size", type=int, default=1)
+    parser.add_argument("--is-gray", type=bool, default=False)
+    parser.add_argument("--is-shuffle", type=bool, default=False)
     parser.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
     parser.add_argument('--direction', type=str, default='AtoB', help='AtoB or BtoA')
     parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')
