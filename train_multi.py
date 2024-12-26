@@ -54,7 +54,6 @@ def train(rank, world_size, opt):
                 predict_masks = model.forward_only(visible_masks)
 
                 for predict_mask, final_mask, percent in zip(predict_masks, final_masks, percents):
-                    print(predict_mask.size())
                     predict_mask = tensor2im(predict_mask).squeeze()
                     final_mask = tensor2im(final_mask).squeeze()
                     intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
@@ -71,7 +70,7 @@ def train(rank, world_size, opt):
                     if len(results) < result_count:
                         results.append([predict_mask, final_mask])
 
-            m_iou = total_iou / val_dataset.anno_len
+            m_iou = total_iou / len(val_dataset)
             for percent, values in percents_iou.items():
                 percents_iou[percent] = values[1] / values[0]
 
