@@ -64,6 +64,8 @@ def train(rank, world_size, opt):
                     predict_area = (predict_mask == 1).sum()
                     target_area = (final_mask == 1).sum()
                     iou = intersection / (predict_area + target_area - intersection)
+
+                    percent = percent.item()
                     if percent not in percents_iou:
                         percents_iou[percent] = [0, 0]
 
@@ -74,11 +76,12 @@ def train(rank, world_size, opt):
                     if len(results) < result_count:
                         results.append([predict_mask, final_mask])
 
-            for key in percents:
-                print(f"{key}: {type(key)=}")
+            
+            # for key in percents:
+            #     print(f"{key}: {type(key)=}")
 
-            for key, value in percents_iou.items():
-                print(f"{key}: {value}")
+            # for key, value in percents_iou.items():
+            #     print(f"{key}: {value}")
 
             m_iou = total_iou / len(val_dataset)
             for percent, values in percents_iou.items():
