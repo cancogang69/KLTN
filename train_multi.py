@@ -63,8 +63,8 @@ def train(rank, world_size, opt):
             axs.set_title("Loss per epoch")
 
             epoch_nums = range(1, len(epoch_losses["gen"])+1)
-            axs.plot(epoch_losses["gen"], epoch_nums, label="line1")
-            axs.plot(epoch_losses["dis"], epoch_nums, label="line2")
+            axs.plot(epoch_nums, epoch_losses["gen"], label="generator_loss")
+            axs.plot(epoch_nums, epoch_losses["dis"], label="discriminator_loss")
             axs.xaxis.get_major_locator().set_params(integer=True)
             axs.legend()
             fig.savefig(f"{opt.plot_save_path}/losses_plot.jpg")
