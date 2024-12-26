@@ -40,6 +40,7 @@ def parse_args():
     parser.add_argument("--train-anno-path", type=str, required=True, help="path to the train json annotation file")
     parser.add_argument("--val-anno-path", type=str, required=True, help="path to the validation json annotation file")
     parser.add_argument('--image-root', type=str)
+    parser.add_argument("--is-gray", type=str, default=False)
     parser.add_argument('--dataset_mode', type=str, default='unaligned', help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
     parser.add_argument('--direction', type=str, default='AtoB', help='AtoB or BtoA')
     parser.add_argument('--serial_batches', action='store_true', help='if true, takes images in order to make batches, otherwise takes them randomly')
