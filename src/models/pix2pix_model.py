@@ -51,12 +51,24 @@ class Pix2PixModel(BaseModel):
         else:  # during test time, only load G
             self.model_names = ['G']
         # define networks (both generator and discriminator)
-        self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
-                                      not opt.no_dropout, opt.init_type, opt.init_gain, self.rank, self.is_ddp)
+        self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout)
+        if self.opt.model_generator_path is not None:
+            self.load_network(self.opt.model_generator_path, "G")
+        else:
+            networks.init_weights(self.netG, opt.init_type, opt.init_gain)
 
-        if self.isTrain:  # define a discriminator; conditional GANs need to take both input and output images; Therefore, #channels for D is input_nc + output_nc
-            self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD,
-                                          opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.rank, self.is_ddp)
+        if self.is_ddp:
+            networks.to_ddp(self.netG, self.rank, self.is_dpp)
+
+        if self.isTrain:
+            self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm)
+            if self.opt.model_discriminator_path is not None:
+                self.load_network(self.opt.model_generator_path, "D")
+            else:
+                networks.init_weights(self.netD, opt.init_type, opt.init_gain)
+
+            if self.is_ddp:
+                networks.to_ddp(self.netG, self.rank, self.is_dpp)
 
         if self.isTrain:
             # define loss functions

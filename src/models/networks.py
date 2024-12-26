@@ -99,7 +99,7 @@ def init_weights(net, init_type='normal', init_gain=0.02):
     net.apply(init_func)  # apply the initialization function <init_func>
 
 
-def init_net(net, init_type='normal', init_gain=0.02, rank=None, is_dpp=False):
+def to_ddp(net, rank=None):
     """Initialize a network: 1. register CPU/GPU device (with multi-GPU support); 2. initialize the network weights
     Parameters:
         net (network)      -- the network to be initialized
@@ -109,15 +109,13 @@ def init_net(net, init_type='normal', init_gain=0.02, rank=None, is_dpp=False):
 
     Return an initialized network.
     """
-    if is_dpp:
-        assert(torch.cuda.is_available())
-        net.to(torch.device(f"cuda:{rank}"))
-        net = DDP(net, device_ids=[rank])
-    init_weights(net, init_type, init_gain=init_gain)
+    assert(torch.cuda.is_available())
+    net.to(torch.device(f"cuda:{rank}"))
+    net = DDP(net, device_ids=[rank])
     return net
 
 
-def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, rank=None, is_dpp=False):
+def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False):
     """Create a generator
 
     Parameters:
@@ -157,10 +155,10 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = UnetGenerator(input_nc, output_nc, 8, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
-    return init_net(net, init_type, init_gain, rank, is_dpp)
+    return net
 
 
-def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal', init_gain=0.02, rank=None, is_dpp=False):
+def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch'):
     """Create a discriminator
 
     Parameters:
@@ -201,7 +199,7 @@ def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal'
         net = PixelDiscriminator(input_nc, ndf, norm_layer=norm_layer)
     else:
         raise NotImplementedError('Discriminator model name [%s] is not recognized' % netD)
-    return init_net(net, init_type, init_gain, rank, is_dpp)
+    return net
 
 
 ##############################################################################

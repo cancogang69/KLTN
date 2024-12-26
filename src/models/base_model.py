@@ -173,31 +173,21 @@ class BaseModel(ABC):
         else:
             self.__patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
 
-    def load_networks(self, generator_path, discriminator_path, is_train = True):
+    def load_networks(self, network_path, network_type="G"):
         """Load all the networks from the disk.
 
         Parameters:
             epoch (int) -- current epoch; used in the file name '%s_net_%s.pth' % (epoch, name)
         """
-        g_net =  getattr(self, 'netG')
-        print('loading the model from %s' % generator_path)
-        g_state_dict = torch.load(generator_path, map_location=str(self.device), weights_only=True)
-        if hasattr(g_state_dict, '_metadata'):
-            del g_state_dict._metadata
-        for key in list(g_state_dict.keys()):
+        net =  getattr(self, f"net{network_type}")
+        print('loading the model from %s' % network_path)
+        state_dict = torch.load(network_path, map_location=str(self.device), weights_only=True)
+        if hasattr(state_dict, '_metadata'):
+            del state_dict._metadata
+        for key in list(state_dict.keys()):
             print(key)
-            self.__patch_instance_norm_state_dict(g_state_dict, g_net, key.split('.'))
-        g_net.load_state_dict(g_state_dict)
-
-        if is_train:
-            d_net =  getattr(self, 'netG')
-            print('loading the model from %s' % discriminator_path)
-            d_state_dict = torch.load(discriminator_path, map_location=str(self.device))
-            if hasattr(d_state_dict, '_metadata'):
-                del d_state_dict._metadata
-            for key in list(d_state_dict.keys()):
-                self.__patch_instance_norm_state_dict(d_state_dict, d_net, key.split('.'))
-            d_net.load_state_dict(d_state_dict)
+            self.__patch_instance_norm_state_dict(state_dict, net, key.split('.'))
+        net.load_state_dict(state_dict)
 
 
     def print_networks(self, verbose):

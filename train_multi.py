@@ -23,7 +23,6 @@ def train(rank, world_size, opt):
 
     model = create_model(opt)
     model.setup(opt)
-    model.load_networks(opt.model_generator_path, opt.model_discriminator_path, opt.isTrain)
 
     if not os.path.exists(opt.plot_save_path) and rank == 0:
         os.makedirs(opt.plot_save_path)
