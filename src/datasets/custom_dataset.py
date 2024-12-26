@@ -72,7 +72,7 @@ class CustomDataset(object):
         if self.opt.is_gray:
             visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)
 
-        visible_mask = self.transform(Image.fromarray(visible_mask)).unsqueeze(0)
+        visible_mask = self.transform(Image.fromarray(visible_mask))
 
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
