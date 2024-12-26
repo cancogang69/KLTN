@@ -56,7 +56,7 @@ class DatasetLoader(object):
             mask = cv2.fillPoly(
                 mask, np.array(polygon), color=[255, 255, 255]
             )
-        if self.is_gray:
+        if self.opt.is_gray:
             mask[mask>1] = 1
         mask = mask.astype(np.uint8)
         return mask
