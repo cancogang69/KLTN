@@ -56,8 +56,8 @@ class DatasetLoader(object):
             mask = cv2.fillPoly(
                 mask, np.array(polygon), color=[255, 255, 255]
             )
-
-        mask[mask>1] = 1
+        if self.is_gray:
+            mask[mask>1] = 1
         mask = mask.astype(np.uint8)
         return mask
 
@@ -78,6 +78,7 @@ class DatasetLoader(object):
         )
         if self.opt.is_gray:
             visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)
+
         visible_mask = self.transform(Image.fromarray(visible_mask)).unsqueeze(0)
 
         final_mask = self.__get_mask(
@@ -86,6 +87,7 @@ class DatasetLoader(object):
 
         if self.opt.is_gray:
             final_mask = cv2.bitwise_and(img, white_img, mask=final_mask)
+
         final_mask = self.transform(Image.fromarray(final_mask)).unsqueeze(0)
 
         percent = anno["percent"]
