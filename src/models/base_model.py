@@ -181,11 +181,11 @@ class BaseModel(ABC):
         """
         g_net =  getattr(self, 'netG')
         print('loading the model from %s' % generator_path)
-        g_state_dict = torch.load(generator_path, map_location=str(self.device))
-        if hasattr(g_state_dict, '_metadata'):
-            del g_state_dict._metadata
-        for key in list(g_state_dict.keys()):  # need to copy keys here because we mutate in loop
-            self.__patch_instance_norm_state_dict(g_state_dict, g_net, key.split('.'))
+        g_state_dict = torch.load(generator_path, map_location=str(self.device), weights_only=True)
+        # if hasattr(g_state_dict, '_metadata'):
+        #     del g_state_dict._metadata
+        # for key in list(g_state_dict.keys()):
+        #     self.__patch_instance_norm_state_dict(g_state_dict, g_net, key.split('.'))
         g_net.load_state_dict(g_state_dict)
 
         if is_train:
@@ -194,7 +194,7 @@ class BaseModel(ABC):
             d_state_dict = torch.load(discriminator_path, map_location=str(self.device))
             if hasattr(d_state_dict, '_metadata'):
                 del d_state_dict._metadata
-            for key in list(d_state_dict.keys()):  # need to copy keys here because we mutate in loop
+            for key in list(d_state_dict.keys()):
                 self.__patch_instance_norm_state_dict(d_state_dict, d_net, key.split('.'))
             d_net.load_state_dict(d_state_dict)
 
