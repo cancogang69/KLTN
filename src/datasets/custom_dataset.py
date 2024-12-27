@@ -82,6 +82,7 @@ class CustomDataset(object):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             visible_mask = self.__get_object(img, visible_mask)
+            print(visible_mask.shape)
         
         visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
