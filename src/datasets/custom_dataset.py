@@ -18,7 +18,7 @@ class CustomDataset(object):
         )
 
         self.categories = [cate["id"] for cate in data["categories"]]
-        self.annos_info = data["annotation"]
+        self.annos_info = data["annotations"]
 
         self.transform_img = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
         self.transform_label_mask = get_label_segment_transform(opt.load_size)
