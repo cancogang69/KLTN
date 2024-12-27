@@ -5,6 +5,7 @@ from PIL import Image
 import torch
 import torch.distributed as dist
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 import matplotlib.pyplot as plt
 
 from src.datasets.custom_dataset import CustomDataset
@@ -22,7 +23,9 @@ def train(rank, world_size, opt):
     opt.is_ddp = True
 
     train_dataset = CustomDataset(opt.train_anno_path, opt)
+    train_sampler = DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=opt.is_shuffle, drop_last=False)
     val_dataset = CustomDataset(opt.val_anno_path, opt)
+    val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False)
 
     train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.is_shuffle)
     val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
