@@ -13,40 +13,18 @@ class CustomDataset(object):
         with open(anno_path, "r") as anno_file:
             data = json.load(anno_file)
         self.opt = opt
-        images_info = dict(
+        self.images_info = dict(
             [[img_info["id"], img_info] for img_info in data["images"]]
         )
 
         self.categories = [cate["id"] for cate in data["categories"]]
-        self.annos = []
-        for anno in data["annotations"]:
-            img_info = images_info[anno["image_id"]]
-            black_start = 0
-            black_end = 0
-            if anno["last_col"] > 0:
-                black_start = anno["last_col"]
-                black_end = img_info["width"]
-            else:
-                black_end = anno["last_col"] + 1
-
-            self.annos.append(
-                {
-                    "mask": anno,
-                    "image_file_name": img_info["file_name"],
-                    "image_height": img_info["height"],
-                    "image_width": img_info["width"],
-                    "black_start": black_start,
-                    "black_end": black_end,
-                    "percent": anno["percent"],
-                    "category_id": anno["category_id"]
-                }
-            )
+        self.annos_info = data["annotation"]
 
         self.transform_img = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
         self.transform_label_mask = get_label_segment_transform(opt.load_size)
 
     def __len__(self):
-        return len(self.annos)
+        return len(self.annos_info)
 
     def __get_mask(self, height, width, polygons):
         mask = np.zeros([height, width])
@@ -64,39 +42,43 @@ class CustomDataset(object):
         label_segment = mask.copy()
         label_segment[label_segment > 128] = label_id
         return label_segment
+    
+    def __get_expand_map(self, height, width, last_col):
+        expand_map = np.zeros([height, width])
+        if last_col > 0:
+            expand_map[:, :last_col] = 255
+        else:
+            expand_map[:, last_col:] = 255
+
+        return expand_map
 
     def __getitem__(self, idx):
-        anno = self.annos[idx]
-
-        img_path = f"{self.opt.image_root}/{anno['image_file_name']}"
-        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-        image_h, image_w = img.shape[:2]
-        white_img = np.full_like(img, 255)
+        anno = self.annos_info[idx]
+        image_info = self.images_info[anno["image_id"]]
+        image_h, image_w = image_info["height"], image_info["width"]
 
         visible_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["visible_segmentations"]
         )
 
-        if self.opt.use_label:
+        if self.opt.use_extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
             label_segment = self.transform_label_mask(Image.fromarray(label_segment))
 
-        if self.opt.is_gray:
-            visible_mask = cv2.bitwise_and(img, white_img, mask=visible_mask)
+            expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
+            expand_map = self.transform_img(Image.fromarray(expand_map))
+        
 
         visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
-        if self.opt.use_label:
-            input_data = torch.cat((visible_mask, label_segment), 0)
+        if self.opt.use_extra_info:
+            input_data = torch.cat((visible_mask, label_segment, expand_map), 0)
         else:
             input_data = visible_mask
 
         final_mask = self.__get_mask(
             image_h, image_w, anno["mask"]["segmentations"]
         )
-
-        if self.opt.is_gray:
-            final_mask = cv2.bitwise_and(img, white_img, mask=final_mask)
 
         final_mask = self.transform_img(Image.fromarray(final_mask))
 

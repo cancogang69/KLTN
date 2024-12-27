@@ -51,8 +51,8 @@ class Pix2PixModel(BaseModel):
         else:  # during test time, only load G
             self.model_names = ['G']
         # define networks (both generator and discriminator)
-        if opt.use_label:
-            opt.input_nc = opt.input_nc + 1
+        if opt.use_extra_info:
+            opt.input_nc = opt.input_nc + 2
 
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout)
         if self.opt.model_generator_path is not None:
