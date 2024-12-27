@@ -50,6 +50,14 @@ class CustomDataset(object):
             expand_map[:, last_col:] = 255
 
         return expand_map
+    
+    def __get_object(self, image, object_mask):
+        white_image = np.full_like(image, fill_value=(255, 255, 255))
+        object_mask[object_mask > 127] = 1 
+        masked = cv2.bitwise_and(image, white_image, mask=object_mask)
+
+        return masked
+
 
     def __getitem__(self, idx):
         anno = self.annos_info[idx]
@@ -58,7 +66,7 @@ class CustomDataset(object):
 
         visible_mask = self.__get_mask(
             image_h, image_w, anno["visible_segmentations"]
-        )
+        )            
 
         if self.opt.use_extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
@@ -66,8 +74,14 @@ class CustomDataset(object):
 
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
             expand_map = self.transform_img(Image.fromarray(expand_map))
-        
 
+        if self.opt.input_nc == 3:
+            image_path = f"{self.opt.image_root}/{image_info['file_name']}"
+            img = cv2.imread(image_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            visible_mask = self.__get_object(img, visible_mask)
+        
         visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
         if self.opt.use_extra_info:
