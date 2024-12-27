@@ -22,7 +22,6 @@ class CustomDataset(object):
         self.annos_info = data["annotations"]
 
         self.is_grayscale = (self.opt.input_nc == 1)
-        print(self.is_grayscale)
 
         self.transform_img = get_transform(self.opt, None, grayscale=self.is_grayscale)
         self.transform_grayscale_img = get_transform(self.opt, None, grayscale=True)
@@ -80,14 +79,13 @@ class CustomDataset(object):
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
             expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
 
-        if self.is_grayscale:
+        if not self.is_grayscale:
             image_path = f"{self.opt.image_root}/{image_info['file_name']}"
             assert os.path.exists(image_path), f"{image_path} doesn't exist"
             img = cv2.imread(image_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             
             visible_mask = self.__get_object(img, visible_mask)
-            print(f"{visible_mask.shape=}")
         
         visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
