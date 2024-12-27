@@ -148,17 +148,23 @@ class Pix2PixModel(BaseModel):
             
         self.loss_G.backward()
 
-    def optimize_parameters(self):
-        self.forward()                   
+    def optimize_parameters(self, is_discriminator_backprop=True):
+        self.forward()          
+
         # update D
-        self.set_requires_grad(self.netD, True)
-        self.optimizer_D.zero_grad()     
-        self.backward_D()               
-        self.optimizer_D.step()          
+        if is_discriminator_backprop:
+            self.set_requires_grad(self.netD, True)
+            self.optimizer_D.zero_grad()     
+            self.backward_D()               
+            self.optimizer_D.step()    
+
         # update G
         self.set_requires_grad(self.netD, False)  
         self.optimizer_G.zero_grad()       
         self.backward_G()                   
         self.optimizer_G.step()
 
-        return self.loss_G.item(), self.loss_D.item()        
+        if self.loss_D is not None:
+            return self.loss_G.item(), self.loss_D.item()
+        else:
+            return self.loss_G.item(), 0    

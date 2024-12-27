@@ -47,10 +47,11 @@ def train(rank, world_size, opt):
             
         this_epoch_losses = {"num": 0, "gen": 0, "dis": 0}
 
+        is_discrim_backprop = ((epoch % opt.discrim_backprop_freq) == 0)
         for data in train_loader:
             input_datas, final_masks, _ = data
             model.set_input(input=input_datas, target=final_masks)
-            gen_loss, dis_loss = model.optimize_parameters()
+            gen_loss, dis_loss = model.optimize_parameters(is_discrim_backprop)
 
             this_epoch_losses["num"] += 1
             this_epoch_losses["gen"] += gen_loss
