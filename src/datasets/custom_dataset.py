@@ -58,7 +58,7 @@ class CustomDataset(object):
         image_h, image_w = image_info["height"], image_info["width"]
 
         visible_mask = self.__get_mask(
-            image_h, image_w, anno["mask"]["visible_segmentations"]
+            image_h, image_w, anno["visible_segmentations"]
         )
 
         if self.opt.use_extra_info:
@@ -77,7 +77,7 @@ class CustomDataset(object):
             input_data = visible_mask
 
         final_mask = self.__get_mask(
-            image_h, image_w, anno["mask"]["segmentations"]
+            image_h, image_w, anno["segmentations"]
         )
 
         final_mask = self.transform_img(Image.fromarray(final_mask))
