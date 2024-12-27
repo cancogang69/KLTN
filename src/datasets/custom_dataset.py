@@ -25,6 +25,8 @@ class CustomDataset(object):
         self.transform_grayscale_img = get_transform(self.opt, None, grayscale=True)
         self.transform_label_mask = get_label_segment_transform(opt.load_size)
 
+        print(self.transform_img)
+
     def __len__(self):
         return len(self.annos_info)
 
