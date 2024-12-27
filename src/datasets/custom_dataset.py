@@ -22,6 +22,7 @@ class CustomDataset(object):
         self.annos_info = data["annotations"]
 
         self.is_grayscale = (self.opt.input_nc == 1)
+        print(self.is_grayscale)
 
         self.transform_img = get_transform(self.opt, None, grayscale=self.is_grayscale)
         self.transform_grayscale_img = get_transform(self.opt, None, grayscale=True)
