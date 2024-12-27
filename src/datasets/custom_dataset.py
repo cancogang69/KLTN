@@ -1,7 +1,8 @@
-import numpy as np
+import os
 import json
 import cv2
 from PIL import Image
+import numpy as np
 
 import torch
 
@@ -78,12 +79,11 @@ class CustomDataset(object):
 
         if self.opt.input_nc == 3:
             image_path = f"{self.opt.image_root}/{image_info['file_name']}"
+            assert os.path.exists(image_path), f"{image_path} doesn't exist"
             img = cv2.imread(image_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             
-            print("Hi there")
             visible_mask = self.__get_object(img, visible_mask)
-            print(visible_mask.shape)
         
         visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
