@@ -78,7 +78,7 @@ class CustomDataset(object):
 
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
             expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
-        print("IM here")
+
         if self.is_grayscale:
             image_path = f"{self.opt.image_root}/{image_info['file_name']}"
             assert os.path.exists(image_path), f"{image_path} doesn't exist"
@@ -86,6 +86,7 @@ class CustomDataset(object):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             
             visible_mask = self.__get_object(img, visible_mask)
+            print(f"{visible_mask.shape=}")
         
         visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
