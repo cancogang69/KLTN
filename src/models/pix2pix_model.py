@@ -156,7 +156,9 @@ class Pix2PixModel(BaseModel):
             self.set_requires_grad(self.netD, True)
             self.optimizer_D.zero_grad()     
             self.backward_D()               
-            self.optimizer_D.step()    
+            self.optimizer_D.step()
+        else:
+            self.loss_D = None 
 
         # update G
         self.set_requires_grad(self.netD, False)  
