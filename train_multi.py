@@ -27,8 +27,8 @@ def train(rank, world_size, opt):
     val_dataset = CustomDataset(opt.val_anno_path, opt)
     val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False)
 
-    # train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.is_shuffle)
-    # val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.is_shuffle)
+    val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
 
     model = create_model(opt)
     model.setup(opt)
@@ -48,7 +48,7 @@ def train(rank, world_size, opt):
         this_epoch_losses = {"num": 0, "gen": 0, "dis": 0}
 
         is_discrim_backprop = ((epoch % opt.discrim_backprop_freq) == 0)
-        for data in train_dataset:
+        for data in train_loader:
             input_datas, final_masks, _ = data
             model.set_input(input=input_datas, target=final_masks)
             gen_loss, dis_loss = model.optimize_parameters(is_discrim_backprop)
@@ -80,7 +80,7 @@ def train(rank, world_size, opt):
             total_iou = 0
             percents_iou = {}
             results = []
-            for data in train_dataset:
+            for data in val_loader:
                 
                 input_datas, final_masks, percents = data
                 predict_masks = model.forward_only(input_datas)
