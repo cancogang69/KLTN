@@ -84,8 +84,10 @@ class CustomDataset(object):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             
             visible_mask = self.__get_object(img, visible_mask)
+        else:
+            visible_mask = Image.fromarray(visible_mask)
         
-        visible_mask = self.transform_img(Image.fromarray(visible_mask))
+        visible_mask = self.transform_img(visible_mask)
 
         if self.opt.use_extra_info:
             input_data = torch.cat((visible_mask, label_segment, expand_map), 0)
@@ -96,7 +98,7 @@ class CustomDataset(object):
             image_h, image_w, anno["segmentations"]
         )
 
-        final_mask = self.transform_img(Image.fromarray(final_mask))
+        final_mask = self.transform_grayscale_img(Image.fromarray(final_mask))
 
         percent = anno["percent"]
 
