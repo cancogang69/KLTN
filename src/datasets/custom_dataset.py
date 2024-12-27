@@ -21,6 +21,7 @@ class CustomDataset(object):
         self.annos_info = data["annotations"]
 
         self.transform_img = get_transform(self.opt, None, grayscale=(self.opt.input_nc == 1))
+        self.transform_grayscale_img = get_transform(self.opt, None, grayscale=True)
         self.transform_label_mask = get_label_segment_transform(opt.load_size)
 
     def __len__(self):
@@ -73,7 +74,7 @@ class CustomDataset(object):
             label_segment = self.transform_label_mask(Image.fromarray(label_segment))
 
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
-            expand_map = self.transform_img(Image.fromarray(expand_map))
+            expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
 
         if self.opt.input_nc == 3:
             image_path = f"{self.opt.image_root}/{image_info['file_name']}"
