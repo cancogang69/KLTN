@@ -79,6 +79,7 @@ class CustomDataset(object):
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
             expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
 
+        assert self.is_grayscale == False, f"{self.is_grayscale}"
         if self.is_grayscale:
             image_path = f"{self.opt.image_root}/{image_info['file_name']}"
             assert os.path.exists(image_path), f"{image_path} doesn't exist"
