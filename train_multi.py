@@ -64,8 +64,8 @@ def train(rank, world_size, opt):
     val_dataset = CustomDataset(opt.val_anno_path, opt)
     val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False)
 
-    train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.is_shuffle)
-    val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.is_shuffle, num_workers=opt.num_workers, pin_memory=True)
+    val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers, pin_memory=True)
 
     model = create_model(opt)
     model.setup(opt)

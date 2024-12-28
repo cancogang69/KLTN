@@ -38,6 +38,7 @@ def parse_args():
     parser.add_argument('--loss-type', type=str, default="l1", help='loss function [l1, cross_entropy]')
     parser.add_argument('--lambda-L1', type=float, default=100.0, help='weight for L1 loss')
     parser.add_argument('--discrim-backprop-freq', type=int, default=10, help='how many epoch for discriminator backward propagation')
+    parser.add_argument('--num-workers', type=int, default=0)
     # validation parameters
     parser.add_argument("--val-freq", type=int, default=2, help="th number of epochs until validation")
     parser.add_argument("--plot-save-path", type=str, default="val_plot")
