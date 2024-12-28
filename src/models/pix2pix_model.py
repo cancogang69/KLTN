@@ -164,7 +164,7 @@ class Pix2PixModel(BaseModel):
         # update D
         if is_discriminator_backprop:
             self.set_requires_grad(self.netD, True)
-            self.optimizer_D.zero_grad()     
+            self.optimizer_D.zero_grad(set_to_none=True)     
             self.backward_D()               
             self.scaler_D.step(self.optimizer_D)
             self.scaler_D.update()
@@ -173,7 +173,7 @@ class Pix2PixModel(BaseModel):
 
         # update G
         self.set_requires_grad(self.netD, False)  
-        self.optimizer_G.zero_grad()       
+        self.optimizer_G.zero_grad(set_to_none=True)       
         self.backward_G()                   
         self.scaler_G.step(self.optimizer_G)
         self.scaler_G.update()
