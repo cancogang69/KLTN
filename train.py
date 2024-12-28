@@ -32,9 +32,6 @@ def train(rank, opt):
 
     if not os.path.exists(checkpoint_save_path):
         os.makedirs(checkpoint_save_path)
-        
-    print(f"saving the model at the end of epoch")
-    model.save_networks("last")
 
     best_miou = 0
     result_count = 5
