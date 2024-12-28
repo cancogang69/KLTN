@@ -12,7 +12,7 @@ from src.utils.util import tensor2im
 
 
 def train(rank, opt):
-    checkpoint_save_path = f"checkpoints/{opt.name}"
+    checkpoint_save_path = f"{opt.save_path}/{opt.name}"
 
     opt.isTrain = True
     opt.rank = rank
@@ -25,17 +25,16 @@ def train(rank, opt):
     val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False)
 
     model = create_model(opt)
-    model.setup(opt)
-
-    print(f"saving the model at the end of epoch")
-    model.save_networks("last")
-    
+    model.setup(opt)    
 
     if not os.path.exists(opt.plot_save_path):
         os.makedirs(opt.plot_save_path)
 
     if not os.path.exists(checkpoint_save_path):
         os.makedirs(checkpoint_save_path)
+        
+    print(f"saving the model at the end of epoch")
+    model.save_networks("last")
 
     best_miou = 0
     result_count = 5
