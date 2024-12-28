@@ -44,7 +44,8 @@ class CustomDataset(object):
     def __get_label_segment(self, mask, label_id):
         label_segment = mask.copy()
         label_segment[label_segment > 128] = label_id
-        return label_segment
+
+        return np.expand_dims(label_segment, axis=0)
     
     def __get_expand_map(self, height, width, last_col):
         expand_map = np.zeros([height, width])
