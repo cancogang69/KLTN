@@ -91,7 +91,7 @@ def train(rank, world_size, opt):
     for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):
         epoch_start_time = time.time()          
             
-        this_epoch_losses = {"num": 0, "gen": torch.Tensor([0]).to(f"cuda{rank}"), "dis": torch.Tensor([0]).to(f"cuda{rank}")}
+        this_epoch_losses = {"num": 0, "gen": torch.Tensor([0]).to(f"cuda:{rank}"), "dis": torch.Tensor([0]).to(f"cuda:{rank}")}
 
         is_discrim_backprop = ((epoch % opt.discrim_backprop_freq) == 0)
         for data in train_loader:
