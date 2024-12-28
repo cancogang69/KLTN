@@ -80,10 +80,9 @@ def get_params(opt, size):
 def get_label_segment_transform(load_size, method=transforms.InterpolationMode.BICUBIC):
     transform_list = []
     if load_size is not None:
-        osize = [load_size,load_size]
+        osize = [load_size, load_size]
         transform_list.append(transforms.Resize(osize, method))
     
-    transform_list += [transforms.ToTensor()]
     transform_list += [transforms.Normalize((6.234,), (3.134,))]
 
     return transforms.Compose(transform_list)

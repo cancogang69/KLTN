@@ -74,7 +74,7 @@ class CustomDataset(object):
 
         if self.opt.use_extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
-            label_segment = self.transform_label_mask(Image.fromarray(label_segment))
+            label_segment = self.transform_label_mask(torch.Tensor(label_segment))
 
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
             expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
