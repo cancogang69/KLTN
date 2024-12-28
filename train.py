@@ -27,6 +27,10 @@ def train(rank, opt):
     model = create_model(opt)
     model.setup(opt)
 
+    print(f"saving the model at the end of epoch")
+    model.save_networks("last")
+    
+
     if not os.path.exists(opt.plot_save_path):
         os.makedirs(opt.plot_save_path)
 
