@@ -62,6 +62,8 @@ class Pix2PixModel(BaseModel):
 
         if self.opt.is_ddp:
             networks.to_ddp(self.netG, self.rank)
+        else:
+            self.netG = self.netG.to(self.device)
 
         if self.isTrain:
             self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm)
@@ -72,6 +74,8 @@ class Pix2PixModel(BaseModel):
 
             if self.opt.is_ddp:
                 networks.to_ddp(self.netD, self.rank)
+            else:
+                self.netD = self.netD.to(self.device)
 
         if self.isTrain:
             # define loss functions
