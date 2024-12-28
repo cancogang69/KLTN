@@ -77,6 +77,8 @@ class Pix2PixModel(BaseModel):
             else:
                 self.netD = self.netD.to(self.device)
 
+            self.scaler = torch.cuda.amp.GradScaler()
+
         if self.isTrain:
             # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
@@ -113,6 +115,7 @@ class Pix2PixModel(BaseModel):
         self.real_A = input.to(self.device)
         self.real_B = target.to(self.device)
 
+    @torch.autocast(device_type="cuda", dtype=torch.float16)
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.fake_B = self.netG(self.real_A).to(self.device) # G(A)
@@ -128,16 +131,18 @@ class Pix2PixModel(BaseModel):
     def backward_D(self):
         """Calculate GAN loss for the discriminator"""
         # Fake; stop backprop to the generator by detaching fake_B
-        fake_AB = torch.cat((self.real_A, self.fake_B), 1)
-        pred_fake = self.netD(fake_AB.detach())
-        self.loss_D_fake = self.criterionGAN(pred_fake.to(self.device), False)
-        # Real
-        real_AB = torch.cat((self.real_A, self.real_B), 1)
-        pred_real = self.netD(real_AB)
-        self.loss_D_real = self.criterionGAN(pred_real, True)
-        # combine loss and calculate gradients
-        self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
-        self.loss_D.backward()
+        with torch.autocast(device_type='cuda', dtype=torch.float16):
+            fake_AB = torch.cat((self.real_A, self.fake_B), 1)
+            pred_fake = self.netD(fake_AB.detach())
+            self.loss_D_fake = self.criterionGAN(pred_fake.to(self.device), False)
+            # Real
+            real_AB = torch.cat((self.real_A, self.real_B), 1)
+            pred_real = self.netD(real_AB)
+            self.loss_D_real = self.criterionGAN(pred_real, True)
+            # combine loss and calculate gradients
+            self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
+
+        self.scaler.scale(self.loss_D).backward()
 
     def backward_G(self):
         """Calculate GAN and L1 loss for the generator"""
@@ -150,7 +155,7 @@ class Pix2PixModel(BaseModel):
         self.loss_G_pixel = self.criterionPixel(self.fake_B, self.real_B) * self.opt.lambda_L1
         self.loss_G = self.loss_G_GAN.to(self.device) + self.loss_G_pixel.to(self.device)
             
-        self.loss_G.backward()
+        self.scaler.scale(self.loss_G).backward()
 
     def optimize_parameters(self, is_discriminator_backprop=True):
         self.forward()          
@@ -160,7 +165,7 @@ class Pix2PixModel(BaseModel):
             self.set_requires_grad(self.netD, True)
             self.optimizer_D.zero_grad()     
             self.backward_D()               
-            self.optimizer_D.step()
+            self.scaler.step(self.optimizer_D)
         else:
             self.loss_D = None 
 
@@ -168,7 +173,7 @@ class Pix2PixModel(BaseModel):
         self.set_requires_grad(self.netD, False)  
         self.optimizer_G.zero_grad()       
         self.backward_G()                   
-        self.optimizer_G.step()
+        self.scaler.step(self.optimizer_G)
 
         if self.loss_D is not None:
             return self.loss_G.item(), self.loss_D.item()
