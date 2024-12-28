@@ -16,7 +16,7 @@ from src.utils.util import tensor2im
 
 def train(rank, world_size, opt):
     dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
-    checkpoint_save_path = f"checkpoints/{opt.name}"
+    checkpoint_save_path = f"{opt.save_path}/{opt.name}"
 
     opt.isTrain = True
     opt.rank = rank

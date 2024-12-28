@@ -33,7 +33,7 @@ class BaseModel(ABC):
         self.isTrain = opt.isTrain
         self.rank = opt.rank
         self.is_ddp = opt.is_ddp
-        self.save_dir = os.path.join(opt.save_path, opt.name)
+        self.save_dir = os.path.join(f"./{opt.save_path}", opt.name)
         self.device = torch.device(f"cuda:{self.rank}") if self.rank is not None else torch.device('cpu')
         if opt.preprocess != 'scale_width':  # with [scale_width], input images might have different sizes, which hurts the performance of cudnn.benchmark.
             torch.backends.cudnn.benchmark = True
