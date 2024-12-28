@@ -167,6 +167,7 @@ class Pix2PixModel(BaseModel):
             self.optimizer_D.zero_grad()     
             self.backward_D()               
             self.scaler_D.step(self.optimizer_D)
+            self.scaler_D.update()
         else:
             self.loss_D = None 
 
@@ -175,6 +176,7 @@ class Pix2PixModel(BaseModel):
         self.optimizer_G.zero_grad()       
         self.backward_G()                   
         self.scaler_G.step(self.optimizer_G)
+        self.scaler_G.update()
 
         if self.loss_D is not None:
             return self.loss_G.item(), self.loss_D.item()
