@@ -2,6 +2,7 @@ import os
 import time
 from PIL import Image
 
+import torch
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
@@ -9,6 +10,8 @@ from src.datasets.custom_dataset import CustomDataset
 from src.options.custom_options import parse_args
 from src.models import create_model
 from src.utils.util import tensor2im
+
+torch.backends.cudnn.benchmark = True
 
 
 def validate(model, val_dataset, val_loader, result_count=5):

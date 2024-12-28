@@ -13,6 +13,8 @@ from src.options.custom_options import parse_args
 from src.models import create_model
 from src.utils.util import tensor2im
 
+torch.backends.cudnn.benchmark = True
+
 
 def validate(model, val_dataset, val_loader, result_count=5):
     total_iou = 0
