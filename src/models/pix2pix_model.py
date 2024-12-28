@@ -143,7 +143,7 @@ class Pix2PixModel(BaseModel):
             # combine loss and calculate gradients
             self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
 
-        self.scaler.scale(self.loss_D).backward()
+        self.scaler_D.scale(self.loss_D).backward()
 
     def backward_G(self):
         """Calculate GAN and L1 loss for the generator"""
@@ -156,7 +156,7 @@ class Pix2PixModel(BaseModel):
         self.loss_G_pixel = self.criterionPixel(self.fake_B, self.real_B) * self.opt.lambda_L1
         self.loss_G = self.loss_G_GAN.to(self.device) + self.loss_G_pixel.to(self.device)
             
-        self.scaler.scale(self.loss_G).backward()
+        self.scaler_G.scale(self.loss_G).backward()
 
     def optimize_parameters(self, is_discriminator_backprop=True):
         self.forward()          
