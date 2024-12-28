@@ -27,10 +27,10 @@ def train(rank, opt):
     model = create_model(opt)
     model.setup(opt)
 
-    if not os.path.exists(opt.plot_save_path) and rank == 0:
+    if not os.path.exists(opt.plot_save_path):
         os.makedirs(opt.plot_save_path)
 
-    if not os.path.exists(checkpoint_save_path) and rank == 0:
+    if not os.path.exists(checkpoint_save_path):
         os.makedirs(checkpoint_save_path)
 
     best_miou = 0
@@ -102,39 +102,35 @@ def train(rank, opt):
             for percent, values in percents_iou.items():
                 percents_iou[percent] = values[1] / values[0]
 
-            if rank == 0:
-                save_best = False
-                if best_miou < m_iou:
-                    best_miou = m_iou
-                    save_best = True
-                nrows = 2
-                ncols = result_count
-                fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
-                plt.suptitle(f"EPOCH : {epoch}")
-                
-                for i, result in enumerate(results):
-                    axes[0][i].imshow(Image.fromarray(result[0]), cmap="gray")
-                    axes[0][i].axis("off")
-                    axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
-                    axes[1][i].axis("off")
-
-                fig.savefig(f"{opt.plot_save_path}/epoch_{epoch}_result.jpg")
-                plt.close(fig)
-
-                print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
-                for percent, m_iou in percents_iou.items():
-                    print(f"percent {percent}, mean IoU: {m_iou}")
-
-                if save_best:
-                    print(f"saving the model at the end of epoch {epoch}")
-                    model.save_networks("best")
-
-                model.save_networks("last")
-
+            save_best = False
+            if best_miou < m_iou:
+                best_miou = m_iou
+                save_best = True
+            nrows = 2
+            ncols = result_count
+            fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
+            plt.suptitle(f"EPOCH : {epoch}")
             
+            for i, result in enumerate(results):
+                axes[0][i].imshow(Image.fromarray(result[0]), cmap="gray")
+                axes[0][i].axis("off")
+                axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
+                axes[1][i].axis("off")
 
-        if rank == 0:
-            print(f"End of epoch {epoch} / {opt.n_epochs + opt.n_epochs_decay} \t Time Taken: {time.time() - epoch_start_time} sec")
+            fig.savefig(f"{opt.plot_save_path}/epoch_{epoch}_result.jpg")
+            plt.close(fig)
+
+            print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
+            for percent, m_iou in percents_iou.items():
+                print(f"percent {percent}, mean IoU: {m_iou}")
+
+            if save_best:
+                print(f"saving the model at the end of epoch {epoch}")
+                model.save_networks("best")
+
+            model.save_networks("last")
+
+        print(f"End of epoch {epoch} / {opt.n_epochs + opt.n_epochs_decay} \t Time Taken: {time.time() - epoch_start_time} sec")
 
 
 if __name__ == "__main__":
