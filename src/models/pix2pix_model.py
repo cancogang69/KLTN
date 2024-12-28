@@ -77,7 +77,8 @@ class Pix2PixModel(BaseModel):
             else:
                 self.netD = self.netD.to(self.device)
 
-            self.scaler = torch.cuda.amp.GradScaler()
+            self.scaler_D = torch.amp.GradScaler()
+            self.scaler_G = torch.amp.GradScaler()
 
         if self.isTrain:
             # define loss functions
@@ -165,7 +166,7 @@ class Pix2PixModel(BaseModel):
             self.set_requires_grad(self.netD, True)
             self.optimizer_D.zero_grad()     
             self.backward_D()               
-            self.scaler.step(self.optimizer_D)
+            self.scaler_D.step(self.optimizer_D)
         else:
             self.loss_D = None 
 
@@ -173,7 +174,7 @@ class Pix2PixModel(BaseModel):
         self.set_requires_grad(self.netD, False)  
         self.optimizer_G.zero_grad()       
         self.backward_G()                   
-        self.scaler.step(self.optimizer_G)
+        self.scaler_G.step(self.optimizer_G)
 
         if self.loss_D is not None:
             return self.loss_G.item(), self.loss_D.item()
