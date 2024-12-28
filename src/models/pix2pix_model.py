@@ -179,6 +179,6 @@ class Pix2PixModel(BaseModel):
         self.scaler_G.update()
 
         if self.loss_D is not None:
-            return self.loss_G.item(), self.loss_D.item()
+            return self.loss_G, self.loss_D
         else:
-            return self.loss_G.item(), 0    
+            return self.loss_G, torch.Tensor([0])   
