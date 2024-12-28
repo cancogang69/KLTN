@@ -181,4 +181,4 @@ class Pix2PixModel(BaseModel):
         if self.loss_D is not None:
             return self.loss_G, self.loss_D
         else:
-            return self.loss_G, torch.Tensor([0])   
+            return self.loss_G, torch.Tensor([0]).to(self.device)
