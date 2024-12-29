@@ -115,7 +115,7 @@ def train(rank, opt):
             axs.plot(epoch_nums, epoch_losses["dis"], label="discriminator_loss")
             axs.xaxis.get_major_locator().set_params(integer=True)
             axs.legend()
-            fig.savefig(f"{opt.plot_save_path}/losses_plot.jpg")
+            fig.savefig(f"{plot_save_path}/losses_plot.jpg")
             plt.close(fig)
 
         model.update_learning_rate()
@@ -138,7 +138,7 @@ def train(rank, opt):
                 axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
                 axes[1][i].axis("off")
 
-            fig.savefig(f"{opt.plot_save_path}/epoch_{epoch}_result.jpg")
+            fig.savefig(f"{plot_save_path}/epoch_{epoch}_result.jpg")
             plt.close(fig)
 
             print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
