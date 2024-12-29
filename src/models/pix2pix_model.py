@@ -54,7 +54,14 @@ class Pix2PixModel(BaseModel):
         if opt.use_extra_info:
             opt.input_nc = opt.input_nc + 2
 
-        self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm, not opt.no_dropout)
+        self.netG = networks.define_G(opt.input_nc,
+                                      opt.output_nc,
+                                      opt.ngf,
+                                      opt.netG,
+                                      opt.norm,
+                                      not opt.no_dropout,
+                                      output_type=opt.output_type)
+        
         if self.opt.model_generator_path is not None:
             self.load_network(self.opt.model_generator_path, "G")
         else:

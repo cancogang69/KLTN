@@ -6,7 +6,7 @@ from PIL import Image
 import os
 
 
-def tensor2im(input_image, is_gray=False, imtype=np.uint8):
+def tensor2im(input_image, is_gray=False, is_sdf=False, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
 
     Parameters:
@@ -23,6 +23,9 @@ def tensor2im(input_image, is_gray=False, imtype=np.uint8):
         if is_gray:
             image_numpy[image_numpy < 50] = 0
             image_numpy[image_numpy >= 50] = 1
+        elif is_sdf:
+            image_numpy[image_numpy < 0] = 0
+            image_numpy[image_numpy > 0] = 1
         else:
             image_numpy[image_numpy < 128] = 0
             image_numpy[image_numpy >= 128] = 1

@@ -5,8 +5,9 @@ from PIL import Image
 import numpy as np
 
 import torch
+import skfmm
 
-from src.data.base_dataset import get_transform, get_label_segment_transform
+from src.data.base_dataset import get_transform, get_label_segment_transform, input_resize
 
 
 class CustomDataset(object):
@@ -25,7 +26,8 @@ class CustomDataset(object):
 
         self.transform_img = get_transform(self.opt, None, grayscale=self.is_grayscale)
         self.transform_grayscale_img = get_transform(self.opt, None, grayscale=True)
-        self.transform_label_mask = get_label_segment_transform(opt.load_size)
+        self.transform_label_mask = get_label_segment_transform(self.opt.load_size)
+        self.input_resize = input_resize(self.opt.load_size)
 
     def __len__(self):
         return len(self.annos_info)
@@ -62,7 +64,14 @@ class CustomDataset(object):
         masked = cv2.bitwise_and(image, white_image, mask=object_mask)
 
         return masked
+    
+    def __get_sdf_map(self, mask):
+        mask_rbga = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGBA)
+        phi = np.int64(np.any(mask_rbga[:, :, :3], axis = 2))
+        phi = np.where(phi, 0, -1) + 0.5
 
+        sdf_map = skfmm.distance(phi, dx = 1)
+        return sdf_map
 
     def __getitem__(self, idx):
         anno = self.annos_info[idx]
@@ -88,7 +97,11 @@ class CustomDataset(object):
             
             visible_mask = self.__get_object(img, visible_mask)
         
-        visible_mask = self.transform_img(Image.fromarray(visible_mask))
+        if self.opt.sdf:
+            visible_mask = self.__get_sdf_map(visible_mask)
+            visible_mask = self.input_resize(visible_mask)
+        else:
+            visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
         if self.opt.use_extra_info:
             input_data = torch.cat((visible_mask, label_segment, expand_map), 0)
@@ -99,7 +112,11 @@ class CustomDataset(object):
             image_h, image_w, anno["segmentations"]
         )
 
-        final_mask = self.transform_grayscale_img(Image.fromarray(final_mask))
+        if self.opt.sdf:
+            final_mask = self.__get_sdf_map(final_mask)
+            final_mask = self.input_resize(final_mask)
+        else:
+            final_mask = self.transform_grayscale_img(Image.fromarray(final_mask))
 
         percent = anno["percent"]
 
