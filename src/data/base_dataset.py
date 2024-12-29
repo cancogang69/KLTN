@@ -89,7 +89,7 @@ def get_label_segment_transform(load_size, method=transforms.InterpolationMode.B
 
 def input_resize(load_size, method=transforms.InterpolationMode.BICUBIC):
     osize = [load_size, load_size]
-    return [transforms.Resize(osize, method)]
+    return transforms.Compose([transforms.Resize(osize, method)])
 
 def get_transform(opt, params=None, grayscale=False, method=transforms.InterpolationMode.BICUBIC, convert=True):
     transform_list = []
