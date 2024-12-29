@@ -72,6 +72,7 @@ class CustomDataset(object):
 
         sdf_map = mask
         if len(np.unique(phi)) != 2:
+            print(f"{idx=}, {np.unique(mask)}")
             print(f"{idx=}, {np.unique(phi)}")
             sdf_map = skfmm.distance(phi, dx = 1)
         return np.expand_dims(sdf_map, axis=0)
