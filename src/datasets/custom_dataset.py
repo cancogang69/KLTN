@@ -88,6 +88,8 @@ class CustomDataset(object):
 
         if anno["id"] == 86:
             print(np.unique(visible_mask))
+            print(visible_mask.shape)
+            print(image_info)
 
         if self.opt.use_extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
