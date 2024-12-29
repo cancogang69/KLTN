@@ -14,7 +14,7 @@ from src.utils.util import tensor2im
 torch.backends.cudnn.benchmark = True
 
 
-def validate(model, val_dataset, val_loader, result_count=5):
+def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
     total_iou = 0
     percents_iou = {}
     results = []
@@ -24,8 +24,8 @@ def validate(model, val_dataset, val_loader, result_count=5):
         predict_masks = model.forward_only(input_datas)
 
         for predict_mask, final_mask, percent in zip(predict_masks, final_masks, percents):
-            predict_mask = tensor2im(predict_mask).squeeze()
-            final_mask = tensor2im(final_mask).squeeze()
+            predict_mask = tensor2im(predict_mask, is_sdf=is_sdf).squeeze()
+            final_mask = tensor2im(final_mask, is_sdf=is_sdf).squeeze()
             intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
             predict_area = (predict_mask == 1).sum()
             target_area = (final_mask == 1).sum()
