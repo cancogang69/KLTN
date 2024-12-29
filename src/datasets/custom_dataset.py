@@ -70,7 +70,8 @@ class CustomDataset(object):
         phi = np.int64(np.any(mask_rbga[:, :, :3], axis = 2))
         phi = np.where(phi, 0, -1) + 0.5
 
-        print(f"{idx=}, np.unique(phi)")
+        if len(np.unique(phi)) != 2:
+            print(f"{idx=}, {np.unique(phi)}")
         sdf_map = skfmm.distance(phi, dx = 1)
         return np.expand_dims(sdf_map, axis=0)
 
