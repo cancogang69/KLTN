@@ -51,6 +51,7 @@ def validate(model, val_dataset, val_loader, result_count=5):
 
 def train(rank, opt):
     checkpoint_save_path = f"{opt.save_path}/{opt.name}"
+    plot_save_path = f"{opt.plot_save_path}/{opt.name}"
 
     opt.isTrain = True
     opt.rank = rank
@@ -59,7 +60,7 @@ def train(rank, opt):
     train_dataset = CustomDataset(opt.train_anno_path, opt)
     val_dataset = CustomDataset(opt.val_anno_path, opt)
 
-    train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.is_shuffle, num_workers=opt.num_workers, pin_memory=True)
+    train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.shuffle, num_workers=opt.num_workers, pin_memory=True)
     val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers, pin_memory=True)
 
     model = create_model(opt)
@@ -78,8 +79,8 @@ def train(rank, opt):
             for percent, m_iou in percents_iou.items():
                 print(f"percent {percent}, mean IoU: {m_iou}")
 
-    if not os.path.exists(opt.plot_save_path):
-        os.makedirs(opt.plot_save_path)
+    if not os.path.exists(plot_save_path):
+        os.makedirs(plot_save_path)
 
     if not os.path.exists(checkpoint_save_path):
         os.makedirs(checkpoint_save_path)
