@@ -66,13 +66,13 @@ class CustomDataset(object):
         return masked
     
     def __get_sdf_map(self, mask, idx):
-        mask_rbga = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGBA)
+        mask_rbga = cv2.cvtColor(mask.copy(), cv2.COLOR_GRAY2RGBA)
         phi = np.int64(np.any(mask_rbga[:, :, :3], axis = 2))
         phi = np.where(phi, 0, -1) + 0.5
 
         if len(np.unique(phi)) != 2:
             print(f"{idx=}, {np.unique(phi)}")
-        sdf_map = skfmm.distance(phi, dx = 1)
+            sdf_map = skfmm.distance(phi, dx = 1)
         return np.expand_dims(sdf_map, axis=0)
 
     def __getitem__(self, idx):
