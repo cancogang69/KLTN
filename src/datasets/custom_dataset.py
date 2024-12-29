@@ -71,7 +71,7 @@ class CustomDataset(object):
         phi = np.where(phi, 0, -1) + 0.5
 
         sdf_map = skfmm.distance(phi, dx = 1)
-        return sdf_map
+        return np.expand_dims(sdf_map, axis=0)
 
     def __getitem__(self, idx):
         anno = self.annos_info[idx]
@@ -99,7 +99,7 @@ class CustomDataset(object):
         
         if self.opt.sdf:
             visible_mask = self.__get_sdf_map(visible_mask)
-            visible_mask = self.input_resize(visible_mask)
+            visible_mask = self.input_resize(torch.Tensor(visible_mask))
         else:
             visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
@@ -114,7 +114,7 @@ class CustomDataset(object):
 
         if self.opt.sdf:
             final_mask = self.__get_sdf_map(final_mask)
-            final_mask = self.input_resize(final_mask)
+            final_mask = self.input_resize(torch.Tensor(final_mask))
         else:
             final_mask = self.transform_grayscale_img(Image.fromarray(final_mask))
 
