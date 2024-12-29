@@ -65,16 +65,11 @@ class CustomDataset(object):
 
         return masked
     
-    def __get_sdf_map(self, mask, idx):
+    def __get_sdf_map(self, mask):
         mask_rbga = cv2.cvtColor(mask.copy(), cv2.COLOR_GRAY2RGBA)
         phi = np.int64(np.any(mask_rbga[:, :, :3], axis = 2))
         phi = np.where(phi, 0, -1) + 0.5
-
-        sdf_map = mask
-        if len(np.unique(phi)) != 2:
-            print(f"{idx=}, {np.unique(mask)}")
-            print(f"{idx=}, {np.unique(phi)}")
-            sdf_map = skfmm.distance(phi, dx = 1)
+        sdf_map = skfmm.distance(phi, dx = 1)
         return np.expand_dims(sdf_map, axis=0)
 
     def __getitem__(self, idx):
@@ -85,11 +80,6 @@ class CustomDataset(object):
         visible_mask = self.__get_mask(
             image_h, image_w, anno["visible_segmentations"]
         )
-
-        if anno["id"] == 86:
-            print(np.unique(visible_mask))
-            print(visible_mask.shape)
-            print(image_info)
 
         if self.opt.use_extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
@@ -108,7 +98,7 @@ class CustomDataset(object):
             visible_mask = self.__get_object(img, visible_mask)
         
         if self.opt.sdf:
-            visible_mask = self.__get_sdf_map(visible_mask, anno["id"])
+            visible_mask = self.__get_sdf_map(visible_mask)
             visible_mask = self.input_resize(torch.Tensor(visible_mask))
         else:
             visible_mask = self.transform_img(Image.fromarray(visible_mask))
@@ -123,7 +113,7 @@ class CustomDataset(object):
         )
 
         if self.opt.sdf:
-            final_mask = self.__get_sdf_map(final_mask, anno["id"])
+            final_mask = self.__get_sdf_map(final_mask)
             final_mask = self.input_resize(torch.Tensor(final_mask))
         else:
             final_mask = self.transform_grayscale_img(Image.fromarray(final_mask))
