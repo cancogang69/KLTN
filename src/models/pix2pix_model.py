@@ -87,7 +87,7 @@ class Pix2PixModel(BaseModel):
             if self.opt.loss_type == "l1":
                 self.criterionPixel = torch.nn.L1Loss()
             elif self.opt.loss_type == "cross_entropy":
-                self.criterionPixel = torch.nn.BCELoss()
+                self.criterionPixel = torch.nn.BCEWithLogitsLoss()
             elif self.opt.loss_type == "none":
                 self.criterionPixel = None
             else:
