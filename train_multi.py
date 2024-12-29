@@ -16,7 +16,7 @@ from src.utils.util import tensor2im
 torch.backends.cudnn.benchmark = True
 
 
-def validate(model, val_dataset, val_loader, result_count=5):
+def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
     total_iou = 0
     percents_iou = {}
     results = []
@@ -26,8 +26,8 @@ def validate(model, val_dataset, val_loader, result_count=5):
         predict_masks = model.forward_only(input_datas)
 
         for predict_mask, final_mask, percent in zip(predict_masks, final_masks, percents):
-            predict_mask = tensor2im(predict_mask).squeeze()
-            final_mask = tensor2im(final_mask).squeeze()
+            predict_mask = tensor2im(predict_mask, is_sdf=is_sdf).squeeze()
+            final_mask = tensor2im(final_mask, is_sdf=is_sdf).squeeze()
             intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
             predict_area = (predict_mask == 1).sum()
             target_area = (final_mask == 1).sum()
@@ -54,14 +54,15 @@ def validate(model, val_dataset, val_loader, result_count=5):
 def train(rank, world_size, opt):
     dist.init_process_group(backend="nccl", rank=rank, world_size=world_size)
     checkpoint_save_path = f"{opt.save_path}/{opt.name}"
+    plot_save_path = f"{opt.plot_save_path}/{opt.name}"
 
     opt.isTrain = True
     opt.rank = rank
     opt.is_ddp = True
 
     train_dataset = CustomDataset(opt.train_anno_path, opt)
-    train_sampler = DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=opt.is_shuffle, drop_last=False)
     val_dataset = CustomDataset(opt.val_anno_path, opt)
+    train_sampler = DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=opt.is_shuffle, drop_last=False)
     val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False)
 
     train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.is_shuffle, num_workers=opt.num_workers, pin_memory=True)
@@ -83,8 +84,8 @@ def train(rank, world_size, opt):
             for percent, m_iou in percents_iou.items():
                 print(f"percent {percent}, mean IoU: {m_iou}")
 
-    if not os.path.exists(opt.plot_save_path) and rank == 0:
-        os.makedirs(opt.plot_save_path)
+    if not os.path.exists(plot_save_path) and rank == 0:
+        os.makedirs(plot_save_path)
 
     if not os.path.exists(checkpoint_save_path) and rank == 0:
         os.makedirs(checkpoint_save_path)
@@ -155,8 +156,6 @@ def train(rank, world_size, opt):
                     model.save_networks("best")
 
                 model.save_networks("last")
-
-            
 
         if rank == 0:
             print(f"End of epoch {epoch} / {opt.n_epochs + opt.n_epochs_decay} \t Time Taken: {time.time() - epoch_start_time} sec")

@@ -69,7 +69,7 @@ def train(rank, opt):
     best_miou = 0
     result_count = 5
     if opt.model_generator_path is not None:
-        m_iou, _, percents_iou = validate(model, val_dataset, val_loader, result_count)
+        m_iou, _, percents_iou = validate(model, val_dataset, val_loader, result_count, opt.sdf)
         if rank == 0:
             save_best = False
             if best_miou < m_iou:
@@ -121,7 +121,7 @@ def train(rank, opt):
         model.update_learning_rate()
 
         if epoch % opt.val_freq == 0:
-            m_iou, results, percents_iou = validate(model, val_dataset, val_loader, result_count)
+            m_iou, results, percents_iou = validate(model, val_dataset, val_loader, result_count, opt.sdf)
 
             save_best = False
             if best_miou < m_iou:
