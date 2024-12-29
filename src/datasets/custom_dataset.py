@@ -84,7 +84,10 @@ class CustomDataset(object):
 
         visible_mask = self.__get_mask(
             image_h, image_w, anno["visible_segmentations"]
-        )            
+        )
+
+        if anno["id"] == 86:
+            print(np.unique(visible_mask))
 
         if self.opt.use_extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
@@ -94,6 +97,7 @@ class CustomDataset(object):
             expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
 
         if self.opt.use_image:
+            print("He calling use_image")
             image_path = f"{self.opt.image_root}/{image_info['file_name']}"
             assert os.path.exists(image_path), f"{image_path} doesn't exist"
             img = cv2.imread(image_path)
