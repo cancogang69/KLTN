@@ -102,7 +102,7 @@ class CustomDataset(object):
             visible_mask = self.__get_object(img, visible_mask)
         
         if self.opt.sdf:
-            visible_mask = self.__get_sdf_map(visible_mask, idx)
+            visible_mask = self.__get_sdf_map(visible_mask, anno["id"])
             visible_mask = self.input_resize(torch.Tensor(visible_mask))
         else:
             visible_mask = self.transform_img(Image.fromarray(visible_mask))
@@ -117,7 +117,7 @@ class CustomDataset(object):
         )
 
         if self.opt.sdf:
-            final_mask = self.__get_sdf_map(final_mask, idx)
+            final_mask = self.__get_sdf_map(final_mask, anno["id"])
             final_mask = self.input_resize(torch.Tensor(final_mask))
         else:
             final_mask = self.transform_grayscale_img(Image.fromarray(final_mask))
