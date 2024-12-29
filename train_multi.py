@@ -93,7 +93,7 @@ def train(rank, world_size, opt):
     for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):
         epoch_start_time = time.time()          
             
-        this_epoch_losses = {"num": 0, "gen": torch.Tensor([0]).to(f"cuda:{rank}"), "dis": torch.Tensor([0]).to(f"cuda:{rank}")}
+        this_epoch_losses = {"num": 0, "gen": 0, "dis": 0}
 
         is_discrim_backprop = ((epoch % opt.discrim_backprop_freq) == 0)
         for data in train_loader:
@@ -105,8 +105,8 @@ def train(rank, world_size, opt):
             this_epoch_losses["gen"] += gen_loss
             this_epoch_losses["dis"] += dis_loss
 
-        epoch_losses["gen"].append(this_epoch_losses["gen"].item()/this_epoch_losses["num"])
-        epoch_losses["dis"].append(this_epoch_losses["dis"].item()/this_epoch_losses["num"])
+        epoch_losses["gen"].append(this_epoch_losses["gen"]/this_epoch_losses["num"])
+        epoch_losses["dis"].append(this_epoch_losses["dis"]/this_epoch_losses["num"])
 
         if rank == 0:
             fig, axs = plt.subplots(1, 1)
