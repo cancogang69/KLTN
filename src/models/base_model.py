@@ -173,7 +173,7 @@ class BaseModel(ABC):
         else:
             self.__patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
 
-    def load_network(self, network_path, network_type="G"):
+    def load_network(self, network_path, network_type="G", weights_only=True):
         """Load all the networks from the disk.
 
         Parameters:
@@ -181,7 +181,7 @@ class BaseModel(ABC):
         """
         net =  getattr(self, f"net{network_type}")
         print('loading the model from %s' % network_path)
-        state_dict = torch.load(network_path, map_location=str(self.device), weights_only=True)
+        state_dict = torch.load(network_path, map_location=str(self.device), weights_only=weights_only)
         if hasattr(state_dict, '_metadata'):
             del state_dict._metadata
         for key in list(state_dict.keys()):

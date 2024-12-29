@@ -68,7 +68,7 @@ class Pix2PixModel(BaseModel):
         if self.isTrain:
             self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm)
             if self.opt.model_discriminator_path is not None:
-                self.load_network(self.opt.model_discriminator_path, "D")
+                self.load_network(self.opt.model_discriminator_path, "D", False)
             else:
                 networks.init_weights(self.netD, opt.init_type, opt.init_gain)
 
