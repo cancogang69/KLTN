@@ -101,6 +101,7 @@ class CustomDataset(object):
             if self.opt.use_precalculate_sdf and os.path.exists(self.opt.sdf_root):
                 sdf_path = f"{self.opt.sdf_root}/{anno['id']}_input.npy"
                 visible_mask = np.load(sdf_path)
+                print(visible_mask.shape)
             else:
                 visible_mask = self.__get_sdf_map(visible_mask)
             visible_mask = self.input_resize(torch.Tensor(visible_mask))
