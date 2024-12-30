@@ -101,7 +101,7 @@ class CustomDataset(object):
         
         if self.opt.sdf:
             if self.opt.use_precalculate_sdf:
-                sdf_path = f"{self.opt.sdf_root}/{anno['id']}_input.npy"
+                sdf_path = f"{self.sdf_root}/{anno['id']}_input.npy"
                 assert os.path.exists(sdf_path), f"{sdf_path} doesn't exist"
                 visible_mask = np.expand_dims(np.load(sdf_path), 0)
             else:
@@ -121,7 +121,7 @@ class CustomDataset(object):
 
         if self.opt.sdf:
             if self.opt.use_precalculate_sdf:
-                sdf_path = f"{self.opt.sdf_root}/{anno['id']}_target.npy"
+                sdf_path = f"{self.sdf_root}/{anno['id']}_target.npy"
                 assert os.path.exists(sdf_path), f"{sdf_path} doesn't exist"
                 final_mask = np.expand_dims(np.load(sdf_path), 0)
             else:
