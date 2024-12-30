@@ -17,6 +17,8 @@ torch.backends.cudnn.benchmark = True
 
 
 def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
+    if is_sdf:
+        print("he is using sdf")
     total_iou = 0
     percents_iou = {}
     results = []
@@ -74,7 +76,7 @@ def train(rank, world_size, opt):
     best_miou = 0
     result_count = 5
     if opt.model_generator_path is not None:
-        m_iou, _, percents_iou = validate(model, val_dataset, val_loader, result_count)
+        m_iou, _, percents_iou = validate(model, val_dataset, val_loader, result_count, opt.sdf)
         if rank == 0:
             save_best = False
             if best_miou < m_iou:
@@ -126,7 +128,7 @@ def train(rank, world_size, opt):
         model.update_learning_rate()
 
         if epoch % opt.val_freq == 0:
-            m_iou, results, percents_iou = validate(model, val_dataset, val_loader, result_count)
+            m_iou, results, percents_iou = validate(model, val_dataset, val_loader, result_count, opt.sdf)
 
             if rank == 0:
                 save_best = False

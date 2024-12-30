@@ -41,16 +41,16 @@ class Pix2PixModel(BaseModel):
             opt (Option class)-- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
         BaseModel.__init__(self, opt)
-        # specify the training losses you want to print out. The training/test scripts will call <BaseModel.get_current_losses>
+
         self.loss_names = ['G_GAN', 'G_L1', 'D_real', 'D_fake']
-        # specify the images you want to save/display. The training/test scripts will call <BaseModel.get_current_visuals>
+
         self.visual_names = ['real_A', 'fake_B', 'real_B']
-        # specify the models you want to save to the disk. The training/test scripts will call <BaseModel.save_networks> and <BaseModel.load_networks>
+        
         if self.isTrain:
             self.model_names = ['G', 'D']
-        else:  # during test time, only load G
+        else:
             self.model_names = ['G']
-        # define networks (both generator and discriminator)
+        
         if opt.use_extra_info:
             opt.input_nc = opt.input_nc + 2
 
@@ -74,6 +74,7 @@ class Pix2PixModel(BaseModel):
 
         if self.isTrain:
             self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm)
+
             if self.opt.model_discriminator_path is not None:
                 self.load_network(self.opt.model_discriminator_path, "D", False)
             else:
@@ -87,8 +88,6 @@ class Pix2PixModel(BaseModel):
             self.scaler_D = torch.amp.GradScaler()
             self.scaler_G = torch.amp.GradScaler()
 
-        if self.isTrain:
-            # define loss functions
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
 
             if self.opt.loss_type == "l1":
@@ -100,7 +99,6 @@ class Pix2PixModel(BaseModel):
             else:
                 raise Exception(f"The {self.opt.loss_type} loss function is not supported")
             
-            # initialize optimizers; schedulers will be automatically created by function <BaseModel.setup>.
             if self.opt.optimizer_type == "adam":
                 self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
             elif self.opt.optimizer_type == "sgd":
