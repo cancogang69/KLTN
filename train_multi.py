@@ -17,8 +17,6 @@ torch.backends.cudnn.benchmark = True
 
 
 def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
-    if is_sdf:
-        print("he is using sdf")
     total_iou = 0
     percents_iou = {}
     results = []
