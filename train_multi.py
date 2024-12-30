@@ -60,8 +60,8 @@ def train(rank, world_size, opt):
     opt.rank = rank
     opt.is_ddp = True
 
-    train_dataset = CustomDataset(opt.train_anno_path, opt)
-    val_dataset = CustomDataset(opt.val_anno_path, opt)
+    train_dataset = CustomDataset(opt.train_anno_path, opt, sdf_root=opt.sdf_train_root)
+    val_dataset = CustomDataset(opt.val_anno_path, opt, sdf_root=opt.sdf_val_root)
     train_sampler = DistributedSampler(train_dataset, num_replicas=world_size, rank=rank, shuffle=opt.shuffle, drop_last=False)
     val_sampler = DistributedSampler(val_dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False)
 

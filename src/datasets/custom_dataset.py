@@ -11,7 +11,7 @@ from src.data.base_dataset import get_transform, get_label_segment_transform, in
 
 
 class CustomDataset(object):
-    def __init__(self, anno_path, opt):
+    def __init__(self, anno_path, opt, sdf_root):
         with open(anno_path, "r") as anno_file:
             data = json.load(anno_file)
         self.opt = opt
@@ -28,6 +28,8 @@ class CustomDataset(object):
         self.transform_grayscale_img = get_transform(self.opt, None, grayscale=True)
         self.transform_label_mask = get_label_segment_transform(self.opt.load_size)
         self.input_resize = input_resize(self.opt.load_size)
+        assert os.path.exists(sdf_root), f"{sdf_root} path not exists"
+        self.sdf_root = sdf_root
 
     def __len__(self):
         return len(self.annos_info)
@@ -98,8 +100,9 @@ class CustomDataset(object):
             visible_mask = self.__get_object(img, visible_mask)
         
         if self.opt.sdf:
-            if self.opt.use_precalculate_sdf and os.path.exists(self.opt.sdf_root):
+            if self.opt.use_precalculate_sdf:
                 sdf_path = f"{self.opt.sdf_root}/{anno['id']}_input.npy"
+                assert os.path.exists(sdf_path), f"{sdf_path} doesn't exist"
                 visible_mask = np.expand_dims(np.load(sdf_path), 0)
             else:
                 visible_mask = self.__get_sdf_map(visible_mask)
@@ -117,8 +120,9 @@ class CustomDataset(object):
         )
 
         if self.opt.sdf:
-            if self.opt.use_precalculate_sdf and os.path.exists(self.opt.sdf_root):
+            if self.opt.use_precalculate_sdf:
                 sdf_path = f"{self.opt.sdf_root}/{anno['id']}_target.npy"
+                assert os.path.exists(sdf_path), f"{sdf_path} doesn't exist"
                 final_mask = np.expand_dims(np.load(sdf_path), 0)
             else:
                 final_mask = self.__get_sdf_map(final_mask)
