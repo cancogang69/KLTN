@@ -57,8 +57,8 @@ def train(rank, opt):
     opt.rank = rank
     opt.is_ddp = False
 
-    train_dataset = CustomDataset(opt.train_anno_path, opt)
-    val_dataset = CustomDataset(opt.val_anno_path, opt)
+    train_dataset = CustomDataset(opt.train_anno_path, opt, sdf_root=opt.sdf_train_root)
+    val_dataset = CustomDataset(opt.val_anno_path, opt, sdf_root=opt.sdf_val_root)
 
     train_loader = DataLoader(train_dataset, batch_size=opt.batch_size, shuffle=opt.shuffle, num_workers=opt.num_workers, pin_memory=True)
     val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers, pin_memory=True)
