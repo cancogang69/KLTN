@@ -112,10 +112,11 @@ class CustomDataset(object):
         else:
             visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
-        if self.opt.use_extra_info:
-            input_data = torch.cat((visible_mask, label_segment, expand_map), 0)
-        else:
-            input_data = visible_mask
+        input_data = visible_mask
+        if "expand" in self.opt.extra_info:
+            input_data = torch.cat((input_data, expand_map), 0)
+        if "label" in self.opt.extra_info:
+            input_data = torch.cat((input_data, label_segment), 0)
 
         final_mask = self.__get_mask(
             image_h, image_w, anno["segmentations"]
