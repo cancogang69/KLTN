@@ -28,8 +28,9 @@ class CustomDataset(object):
         self.transform_grayscale_img = get_transform(self.opt, None, grayscale=True)
         self.transform_label_mask = get_label_segment_transform(self.opt.load_size)
         self.input_resize = input_resize(self.opt.load_size)
-        assert os.path.exists(sdf_root), f"{sdf_root} path not exists"
-        self.sdf_root = sdf_root
+        if opt.sdf:
+            assert os.path.exists(sdf_root), f"{sdf_root} path not exists"
+            self.sdf_root = sdf_root
 
     def __len__(self):
         return len(self.annos_info)
