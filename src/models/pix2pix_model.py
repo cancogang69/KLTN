@@ -94,7 +94,7 @@ class Pix2PixModel(BaseModel):
             self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
 
             if self.opt.loss_type == "l1":
-                self.criterionPixel = torch.nn.L1Loss()
+                self.criterionPixel = torch.nn.L1Loss(reduce="sum")
             elif self.opt.loss_type == "cross_entropy":
                 self.criterionPixel = torch.nn.BCEWithLogitsLoss()
             elif self.opt.loss_type == "none":
