@@ -921,7 +921,7 @@ class Conv2dBnAct(nn.Module):
         )
         self.bn = norm_layer(out_channels)
 
-        if self.act is None:
+        if activation is None:
             self.act = None
         else:
             self.act = activation(inplace=True)
