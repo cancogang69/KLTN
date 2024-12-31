@@ -60,7 +60,8 @@ class Pix2PixModel(BaseModel):
                                       opt.netG,
                                       opt.norm,
                                       not opt.no_dropout,
-                                      output_type=opt.output_type)
+                                      output_type=opt.output_type,
+                                      unet_backbone=opt.unet_backbone)
         
         if self.opt.model_generator_path is not None:
             self.load_network(self.opt.model_generator_path, "G")
