@@ -106,7 +106,7 @@ class CustomDataset(object):
                 visible_mask = np.expand_dims(np.load(sdf_path), 0)
             else:
                 visible_mask = self.__get_sdf_map(visible_mask)
-            visible_mask[visible_mask < -50] = -50
+            visible_mask[visible_mask < -100] = -100
             visible_mask = self.input_resize(torch.Tensor(visible_mask))
         else:
             visible_mask = self.transform_img(Image.fromarray(visible_mask))
@@ -127,7 +127,7 @@ class CustomDataset(object):
                 final_mask = np.expand_dims(np.load(sdf_path), 0)
             else:
                 final_mask = self.__get_sdf_map(final_mask)
-            final_mask[final_mask < -50] = -50
+            final_mask[final_mask < -100] = -100
             final_mask = self.input_resize(torch.Tensor(final_mask))
         else:
             final_mask = self.transform_grayscale_img(Image.fromarray(final_mask))
