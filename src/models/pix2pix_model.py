@@ -51,8 +51,10 @@ class Pix2PixModel(BaseModel):
         else:
             self.model_names = ['G']
         
-        if opt.use_extra_info:
-            opt.input_nc = opt.input_nc + 2
+        if "expand" in opt.extra_info:
+            opt.input_nc = opt.input_nc + 1
+        if "label" in opt.extra_info:
+            opt.input_nc = opt.input_nc + 1
 
         self.netG = networks.define_G(opt.input_nc,
                                       opt.output_nc,

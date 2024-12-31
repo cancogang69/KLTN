@@ -8,7 +8,7 @@ def parse_args():
     parser.add_argument('--model-generator-path', type=str)
     parser.add_argument('--model-discriminator-path', type=str)
     parser.add_argument('--input-nc', type=int, default=1, help='# of input image channels: 3 for RGB and 1 for grayscale')
-    parser.add_argument('--use-extra-info', action='store_true')
+    parser.add_argument('--extra-info', type=str, default="none", help="none | expand | label | expand_label")
     parser.add_argument('--output-nc', type=int, default=1, help='# of output image channels: 3 for RGB and 1 for grayscale')
     parser.add_argument('--output-type', type=str, default='image', help="image | binary | regression")
     parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in the last conv layer')
