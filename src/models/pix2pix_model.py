@@ -124,7 +124,7 @@ class Pix2PixModel(BaseModel):
         self.real_A = input.to(self.device)
 
         self.real_B = target.to(self.device)
-        self.expand_region = expand_region
+        self.expand_region = expand_region.to(self.device)
 
     @torch.autocast(device_type="cuda", dtype=torch.float16)
     def forward(self):
