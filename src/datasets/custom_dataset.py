@@ -91,7 +91,7 @@ class CustomDataset(object):
             # expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
             expand_region = expand_map.copy()
             expand_region[expand_region == -1] = 0
-            expand_map = self.input_resize(torch.as_tensor(expand_map, dtype=torch.double))
+            expand_map = self.input_resize(torch.Tensor(expand_map, dtype=torch.float16))
         if "label" in self.opt.extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
             label_segment = self.transform_label_mask(torch.Tensor(label_segment))
