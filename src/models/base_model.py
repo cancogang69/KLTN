@@ -72,7 +72,7 @@ class BaseModel(ABC):
         pass
 
     @abstractmethod
-    def forward_only(self):
+    def predict(self):
         pass
 
     @abstractmethod
