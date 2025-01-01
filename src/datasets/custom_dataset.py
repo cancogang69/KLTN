@@ -88,7 +88,6 @@ class CustomDataset(object):
 
         if "expand" in self.opt.extra_info:
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
-            # expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
             expand_region = expand_map.copy()
             expand_region[expand_region == -1] = 0
             expand_region = self.input_resize(torch.as_tensor(expand_region))

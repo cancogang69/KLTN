@@ -113,7 +113,7 @@ class Pix2PixModel(BaseModel):
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
 
-    def set_input(self, input, target, expand_region):
+    def set_input(self, input, target):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
 
         Parameters:
@@ -124,7 +124,6 @@ class Pix2PixModel(BaseModel):
         self.real_A = input.to(self.device)
 
         self.real_B = target.to(self.device)
-        self.expand_region = expand_region.to(self.device)
 
     @torch.autocast(device_type="cuda", dtype=torch.float16)
     def forward(self):
@@ -164,8 +163,6 @@ class Pix2PixModel(BaseModel):
             self.loss_G_GAN = self.criterionGAN(pred_fake, True)
 
             # Second, G(A) = B
-            self.fake_B = self.fake_B.mul(self.expand_region)
-            self.real_B = self.real_B.mul(self.expand_region)
             self.loss_G_pixel = self.criterionPixel(self.fake_B, self.real_B) * self.opt.lambda_L1
             self.loss_G = self.loss_G_GAN.to(self.device) + self.loss_G_pixel.to(self.device)
             
