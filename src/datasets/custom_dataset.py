@@ -75,7 +75,7 @@ class CustomDataset(object):
         phi = np.int64(np.any(mask_rbga[:, :, :3], axis = 2))
         phi = np.where(phi, 0, -1) + 0.5
         sdf_map = skfmm.distance(phi, dx = 1)
-        return np.expand_dims(sdf_map, axis=0)
+        return np.expand_dims(sdf_map, axis=0).astype(np.float16)
 
     def __getitem__(self, idx):
         anno = self.annos_info[idx]
@@ -91,7 +91,7 @@ class CustomDataset(object):
             # expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
             expand_region = expand_map.copy()
             expand_region[expand_region == -1] = 0
-            expand_map = self.input_resize(torch.Tensor(expand_map, dtype=torch.float16))
+            expand_map = self.input_resize(torch.Tensor(expand_map))
         if "label" in self.opt.extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
             label_segment = self.transform_label_mask(torch.Tensor(label_segment))
