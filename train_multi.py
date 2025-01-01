@@ -98,9 +98,9 @@ def train(rank, world_size, opt):
     best_expand_iou = 0
     result_count = 5
     if opt.model_generator_path is not None:
-        m_iou, m_expand_iou, percents_iou, percents_expand_iou, _ = validate(model, val_dataset, val_loader, result_count, opt.sdf)
+        m_total_iou, m_expand_iou, percents_iou, percents_expand_iou, _ = validate(model, val_dataset, val_loader, result_count, opt.sdf)
         if rank == 0:
-            best_miou = m_iou
+            best_miou = m_total_iou
             best_expand_iou = m_expand_iou
             print(f"Mean IoU: {best_miou}")
             for percent, m_iou in percents_iou.items():
@@ -152,12 +152,12 @@ def train(rank, world_size, opt):
         model.update_learning_rate()
 
         if epoch % opt.val_freq == 0:
-            m_iou, m_expand_iou, percents_iou, percents_expand_iou, results = validate(model, val_dataset, val_loader, result_count, opt.sdf)
+            m_total_iou, m_expand_iou, percents_iou, percents_expand_iou, results = validate(model, val_dataset, val_loader, result_count, opt.sdf)
 
             if rank == 0:
                 save_best = False
-                if best_miou < m_iou:
-                    best_miou = m_iou
+                if best_miou < m_total_iou:
+                    best_miou = m_total_iou
                 if best_expand_iou < m_expand_iou:
                     best_expand_iou = m_expand_iou
                     save_best = True
@@ -180,11 +180,11 @@ def train(rank, world_size, opt):
                 fig.savefig(f"{plot_save_path}/epoch_{epoch}_result.jpg")
                 plt.close(fig)
 
-                print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
+                print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_total_iou}")
                 for percent, m_iou in percents_iou.items():
                     print(f"percent {percent}, mean IoU: {m_iou}")
 
-                print(f"Best expand mean IoU: {best_expand_iou}, this epoch expand mean IoU: {m_iou}")
+                print(f"Best expand mean IoU: {best_expand_iou}, this epoch expand mean IoU: {m_expand_iou}")
                 for percent, m_iou in percents_expand_iou.items():
                     print(f"percent {percent}, mean expand IoU: {m_iou}")
 
