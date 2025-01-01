@@ -55,9 +55,11 @@ class CustomDataset(object):
     def __get_expand_map(self, height, width, last_col):
         expand_map = np.zeros([height, width])
         if last_col > 0:
-            expand_map[:, :last_col] = 255
+            expand_map[:, :last_col] = 1
+            expand_map[:, last_col:] = -1
         else:
-            expand_map[:, last_col:] = 255
+            expand_map[:, last_col:] = 1
+            expand_map[:, :last_col] = -1
 
         return expand_map
     
@@ -86,8 +88,10 @@ class CustomDataset(object):
 
         if "expand" in self.opt.extra_info:
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
-            expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
-            expand_region = expand_map.clone()
+            # expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
+            expand_region = expand_map.copy()
+            expand_region[expand_region == -1] = 0
+            expand_map = self.input_resize(torch.as_tensor(expand_map))
         if "label" in self.opt.extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
             label_segment = self.transform_label_mask(torch.Tensor(label_segment))
