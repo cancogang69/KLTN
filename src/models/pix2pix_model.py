@@ -131,7 +131,7 @@ class Pix2PixModel(BaseModel):
         self.fake_B = self.netG(self.real_A).to(self.device) # G(A)
 
 
-    def forward_only(self, input):
+    def predict(self, input):
         input = input.to(self.device)
         with torch.no_grad():
             predict = self.netG(input)

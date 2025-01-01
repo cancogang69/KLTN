@@ -11,16 +11,9 @@ import matplotlib.pyplot as plt
 from src.datasets.custom_dataset import CustomDataset
 from src.options.custom_options import parse_args
 from src.models import create_model
-from src.utils.util import tensor2im
+from src.utils.util import tensor2im, get_iou
 
 torch.backends.cudnn.benchmark = True
-
-
-def get_iou(mask1, mask2):
-    intersection = ((mask1 == 1) & (mask2 == 1)).sum()
-    union = ((mask1 == 1) | (mask2 == 1)).sum()
-    iou = intersection / (union)
-    return iou
 
 
 def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):

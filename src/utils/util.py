@@ -6,6 +6,13 @@ from PIL import Image
 import os
 
 
+def get_iou(mask1, mask2):
+    intersection = ((mask1 == 1) & (mask2 == 1)).sum()
+    union = ((mask1 == 1) | (mask2 == 1)).sum()
+    iou = intersection / (union)
+    return iou
+
+
 def tensor2im(input_image, is_gray=False, is_sdf=False, imtype=np.uint8):
     """"Converts a Tensor array into a numpy image array.
 

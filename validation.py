@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from src.datasets.custom_dataset import CustomDataset
 from src.options.custom_options import parse_args
 from src.models import create_model
-from src.utils.util import tensor2im
+from src.utils.util import tensor2im, get_iou
 
 torch.backends.cudnn.benchmark = True
 
@@ -25,65 +25,58 @@ def evaluate(rank, opt):
     model = create_model(opt)
     model.setup(opt)
 
-    if not os.path.exists(plot_save_path) and rank == 0:
-        os.makedirs(plot_save_path)
-
-    if not os.path.exists(checkpoint_save_path) and rank == 0:
-        os.makedirs(checkpoint_save_path)
-
     total_iou = 0
+    total_expand_iou = 0
     percents_iou = {}
-    results = []
+    percents_expand_iou = {}
     for data in val_loader:
-        
-        input_datas, final_masks, percents = data
-        predict_masks = model.forward_only(input_datas)
+        input_datas, final_masks, expand_regions, percents = data
+        predict_masks = model.predict(input_datas)
 
-        for predict_mask, final_mask, percent in zip(predict_masks, final_masks, percents):
+        for predict_mask, final_mask, expand_region, percent in zip(predict_masks, final_masks, expand_regions, percents):
+            expand_predict = predict_mask.mul(expand_region)
+            expand_final = final_mask.mul(expand_region)
+
             predict_mask = tensor2im(predict_mask, is_sdf=opt.sdf).squeeze()
             final_mask = tensor2im(final_mask, is_sdf=opt.sdf).squeeze()
-            intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
-            predict_area = (predict_mask == 1).sum()
-            target_area = (final_mask == 1).sum()
-            iou = intersection / (predict_area + target_area - intersection)
+
+            expand_predict_mask = tensor2im(expand_predict, is_sdf=opt.sdf).squeeze()
+            expand_final_mask = tensor2im(expand_final, is_sdf=opt.sdf).squeeze()
+
+            image_iou = get_iou(predict_mask, final_mask)
+            expand_iou = get_iou(expand_predict_mask, expand_final_mask)
 
             percent = percent.item()
             if percent not in percents_iou:
                 percents_iou[percent] = [0, 0]
+                percents_expand_iou[percent] = [0, 0]
 
             percents_iou[percent][0] += 1
-            percents_iou[percent][1] += iou
-            total_iou += iou
+            percents_iou[percent][1] += image_iou
+            total_iou += image_iou
+
+            percents_expand_iou[percent][0] += 1
+            percents_expand_iou[percent][1] += expand_iou
+            total_expand_iou += expand_iou
 
     m_iou = total_iou / len(val_dataset)
     for percent, values in percents_iou.items():
         percents_iou[percent] = values[1] / values[0]
 
-    save_best = False
-    if best_miou < m_iou:
-        best_miou = m_iou
-        save_best = True
-    nrows = 2
-    ncols = result_count
-    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
-    plt.suptitle(f"EPOCH : {epoch}")
-    
-    for i, result in enumerate(results):
-        axes[0][i].imshow(Image.fromarray(result[0]), cmap="gray")
-        axes[0][i].axis("off")
-        axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
-        axes[1][i].axis("off")
+    m_expand_iou = total_expand_iou / len(val_dataset)
+    for percent, values in percents_expand_iou.items():
+        percents_expand_iou[percent] = values[1] / values[0]
 
-    fig.savefig(f"{plot_save_path}/epoch_{epoch}_result.jpg")
-    plt.close(fig)
 
     print(f"Mean IoU: {m_iou}")
     for percent, m_iou in percents_iou.items():
         print(f"percent {percent}, mean IoU: {m_iou}")
-
-    print(f"End of epoch {epoch} / {opt.n_epochs + opt.n_epochs_decay} \t Time Taken: {time.time() - epoch_start_time} sec")
-
+        
+    print(f"Expand mean IoU: {m_expand_iou}")
+    for percent, m_iou in percents_expand_iou.items():
+        print(f"percent {percent}, mean expand IoU: {m_iou}")
 
 if __name__ == "__main__":
     opt = parse_args()
-    evaluate(local_rank, world_size, opt)
+    rank = 0
+    evaluate(rank, opt)
