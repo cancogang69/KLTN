@@ -61,7 +61,7 @@ def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
             total_expand_iou += expand_iou
 
             if len(results) < result_count:
-                results.append([predict_mask, final_mask])
+                results.append([predict_mask, final_mask, expand_predict_mask, expand_final_mask])
 
     m_iou = total_iou / len(val_dataset)
     for percent, values in percents_iou.items():
@@ -162,7 +162,7 @@ def train(rank, world_size, opt):
                     best_expand_iou = m_expand_iou
                     save_best = True
 
-                nrows = 2
+                nrows = 4
                 ncols = result_count
                 fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
                 plt.suptitle(f"EPOCH : {epoch}")
@@ -172,6 +172,10 @@ def train(rank, world_size, opt):
                     axes[0][i].axis("off")
                     axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
                     axes[1][i].axis("off")
+                    axes[2][i].imshow(Image.fromarray(result[2]), cmap="gray")
+                    axes[2][i].axis("off")
+                    axes[3][i].imshow(Image.fromarray(result[3]), cmap="gray")
+                    axes[3][i].axis("off")
 
                 fig.savefig(f"{plot_save_path}/epoch_{epoch}_result.jpg")
                 plt.close(fig)
@@ -180,7 +184,7 @@ def train(rank, world_size, opt):
                 for percent, m_iou in percents_iou.items():
                     print(f"percent {percent}, mean IoU: {m_iou}")
 
-                print(f"Mean expand IoU: {best_expand_iou}")
+                print(f"Best mean IoU: {best_expand_iou}, this epoch mean IoU: {m_iou}")
                 for percent, m_iou in percents_expand_iou.items():
                     print(f"percent {percent}, mean expand IoU: {m_iou}")
 
