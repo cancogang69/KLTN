@@ -25,7 +25,7 @@ def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
     for data in val_loader:
         
         input_datas, final_masks, expand_regions, percents = data
-        predict_masks = model.forward_only(input_datas)
+        predict_masks = model.predict(input_datas)
 
         for predict_mask, final_mask, expand_region, percent in zip(predict_masks, final_masks, expand_regions, percents):
             expand_predict = predict_mask.mul(expand_region)
