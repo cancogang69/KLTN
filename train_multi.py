@@ -184,7 +184,7 @@ def train(rank, world_size, opt):
                 for percent, m_iou in percents_iou.items():
                     print(f"percent {percent}, mean IoU: {m_iou}")
 
-                print(f"Best mean IoU: {best_expand_iou}, this epoch mean IoU: {m_iou}")
+                print(f"Best expand mean IoU: {best_expand_iou}, this epoch expand mean IoU: {m_iou}")
                 for percent, m_iou in percents_expand_iou.items():
                     print(f"percent {percent}, mean expand IoU: {m_iou}")
 
