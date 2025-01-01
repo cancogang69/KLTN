@@ -39,9 +39,9 @@ def evaluate(rank, opt):
             if not os.path.exists(f"{save_root}/{percent}"):
               os.makedirs(f"{save_root}/{percent}")
 
-            predict_mask_path = f"{save_root}/{percent}/{img_name.split(".")[0]}_{anno_id}_a.png"
+            predict_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_a.png"
             Image.fromarray(predict_mask).save(predict_mask_path)
-            predict_mask_path = f"{save_root}/{percent}/{img_name.split(".")[0]}_{anno_id}_e.png"
+            predict_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_e.png"
             Image.fromarray(predict_mask).save(expand_predict_mask)
 
 
