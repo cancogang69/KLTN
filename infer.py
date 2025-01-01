@@ -36,10 +36,10 @@ def evaluate(rank, opt):
 
             expand_predict_mask = tensor2im(expand_predict, is_sdf=opt.sdf).squeeze()
 
+            percent = str(int(percent*100))
             if not os.path.exists(f"{save_root}/{percent}"):
               os.makedirs(f"{save_root}/{percent}")
-            percent = str(int(percent*100))
-            
+
             predict_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_a.png"
             Image.fromarray(predict_mask).save(predict_mask_path)
 
