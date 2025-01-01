@@ -150,5 +150,7 @@ class CustomDataset(object):
             input_data,
             final_mask,
             expand_region,
-            percent
+            percent,
+            image_info["file_name"],
+            anno["id"],
         ]
