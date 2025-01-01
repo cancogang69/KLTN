@@ -18,7 +18,6 @@ def evaluate(rank, opt):
     val_loader = DataLoader(val_dataset, batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers, pin_memory=True)
 
     model = create_model(opt)
-    model.setup(opt)
 
     total_iou = 0
     total_expand_iou = 0
