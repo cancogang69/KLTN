@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('--lr-policy', type=str, default='linear', help='learning rate policy. [linear | step | plateau | cosine]')
     parser.add_argument('--lr-decay-iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
     parser.add_argument("--save-path", type=str, default="checkpoints")
-    parser.add_argument('--loss-type', type=str, default="l1", help='loss function [l1, cross_entropy]')
+    parser.add_argument('--loss-type', type=str, default="l1", help='loss function [l1, cross_entropy, RMSE]')
     parser.add_argument('--lambda-L1', type=float, default=100.0, help='weight for L1 loss')
     parser.add_argument('--discrim-backprop-freq', type=int, default=10, help='how many epoch for discriminator backward propagation')
     parser.add_argument('--num-workers', type=int, default=0)

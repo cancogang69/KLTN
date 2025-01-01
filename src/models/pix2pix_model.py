@@ -97,6 +97,8 @@ class Pix2PixModel(BaseModel):
                 self.criterionPixel = torch.nn.L1Loss(reduction="sum")
             elif self.opt.loss_type == "cross_entropy":
                 self.criterionPixel = torch.nn.BCEWithLogitsLoss()
+            elif self.opt.loss_type == "RMSE":
+                self.criterionPixel = torch.nn.MSELoss()
             elif self.opt.loss_type == "none":
                 self.criterionPixel = None
             else:
@@ -163,7 +165,11 @@ class Pix2PixModel(BaseModel):
             self.loss_G_GAN = self.criterionGAN(pred_fake, True)
 
             # Second, G(A) = B
-            self.loss_G_pixel = self.criterionPixel(self.fake_B, self.real_B) * self.opt.lambda_L1
+            if self.opt.loss_type == "RMSE":
+                self.loss_G_pixel = torch.sqrt(self.criterionPixel(self.fake_B, self.real_B))
+            else:
+                self.loss_G_pixel = self.criterionPixel(self.fake_B, self.real_B)
+            self.loss_G_pixel = self.loss_G_pixel * self.opt.lambda_L1
             self.loss_G = self.loss_G_GAN.to(self.device) + self.loss_G_pixel.to(self.device)
             
         self.scaler_G.scale(self.loss_G).backward()
