@@ -86,6 +86,7 @@ class CustomDataset(object):
 
         if "expand" in self.opt.extra_info:
             expand_map = self.__get_expand_map(image_h, image_w, anno["last_col"])
+            expand_region = expand_map.copy()
             expand_map = self.transform_grayscale_img(Image.fromarray(expand_map))
         if "label" in self.opt.extra_info:
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
@@ -139,5 +140,6 @@ class CustomDataset(object):
         return [
             input_data,
             final_mask,
-            percent,
+            expand_region,
+            percent
         ]
