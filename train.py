@@ -112,7 +112,7 @@ def train(rank, opt):
 
         is_discrim_backprop = ((epoch % opt.discrim_backprop_freq) == 0)
         for data in train_loader:
-            input_datas, final_masks, _ = data
+            input_datas, final_masks, _, _ = data
             model.set_input(input=input_datas, target=final_masks)
             gen_loss, dis_loss = model.optimize_parameters(is_discrim_backprop)
 
