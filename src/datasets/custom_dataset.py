@@ -23,7 +23,7 @@ class CustomDataset(object):
 
         if opt.split_percent != -1:
             self.annos_info = [anno for anno in data["annotations"] 
-                               if anno["split_percent"] == opt.split_percent]
+                               if anno["percent"] == opt.split_percent]
         else:
             self.annos_info = data["annotations"]
 
