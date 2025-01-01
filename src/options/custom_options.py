@@ -46,8 +46,8 @@ def parse_args():
     parser.add_argument("--val-freq", type=int, default=2, help="th number of epochs until validation")
     parser.add_argument("--plot-save-path", type=str, default="val_plot")
     # dataset parameters
-    parser.add_argument("--train-anno-path", type=str, required=True, help="path to the train json annotation file")
-    parser.add_argument("--val-anno-path", type=str, required=True, help="path to the validation json annotation file")
+    parser.add_argument("--train-anno-path", type=str, help="path to the train json annotation file")
+    parser.add_argument("--val-anno-path", type=str, help="path to the validation json annotation file")
     parser.add_argument('--image-root', type=str)
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--shuffle", action="store_true", default=False)
