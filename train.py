@@ -9,44 +9,60 @@ import matplotlib.pyplot as plt
 from src.datasets.custom_dataset import CustomDataset
 from src.options.custom_options import parse_args
 from src.models import create_model
-from src.utils.util import tensor2im
+from src.utils.util import tensor2im, get_iou
 
 torch.backends.cudnn.benchmark = True
 
 
 def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
     total_iou = 0
+    total_expand_iou = 0
     percents_iou = {}
+    percents_expand_iou = {}
     results = []
     for data in val_loader:
         
-        input_datas, final_masks, percents = data
-        predict_masks = model.forward_only(input_datas)
+        input_datas, final_masks, expand_regions, percents = data
+        predict_masks = model.predict(input_datas)
 
-        for predict_mask, final_mask, percent in zip(predict_masks, final_masks, percents):
+        for predict_mask, final_mask, expand_region, percent in zip(predict_masks, final_masks, expand_regions, percents):
+            expand_predict = predict_mask.mul(expand_region)
+            expand_final = final_mask.mul(expand_region)
+
             predict_mask = tensor2im(predict_mask, is_sdf=is_sdf).squeeze()
             final_mask = tensor2im(final_mask, is_sdf=is_sdf).squeeze()
-            intersection = ((predict_mask == 1) & (final_mask == 1)).sum()
-            predict_area = (predict_mask == 1).sum()
-            target_area = (final_mask == 1).sum()
-            iou = intersection / (predict_area + target_area - intersection)
+
+            expand_predict_mask = tensor2im(expand_predict, is_sdf=is_sdf).squeeze()
+            expand_final_mask = tensor2im(expand_final, is_sdf=is_sdf).squeeze()
+
+            image_iou = get_iou(predict_mask, final_mask)
+            expand_iou = get_iou(expand_predict_mask, expand_final_mask)
 
             percent = percent.item()
             if percent not in percents_iou:
                 percents_iou[percent] = [0, 0]
+                percents_expand_iou[percent] = [0, 0]
 
             percents_iou[percent][0] += 1
-            percents_iou[percent][1] += iou
-            total_iou += iou
+            percents_iou[percent][1] += image_iou
+            total_iou += image_iou
+
+            percents_expand_iou[percent][0] += 1
+            percents_expand_iou[percent][1] += expand_iou
+            total_expand_iou += expand_iou
 
             if len(results) < result_count:
-                results.append([predict_mask, final_mask])
+                results.append([predict_mask, final_mask, expand_predict_mask, expand_final_mask])
 
     m_iou = total_iou / len(val_dataset)
     for percent, values in percents_iou.items():
         percents_iou[percent] = values[1] / values[0]
 
-    return m_iou, results, percents_iou
+    m_expand_iou = total_expand_iou / len(val_dataset)
+    for percent, values in percents_expand_iou.items():
+        percents_expand_iou[percent] = values[1] / values[0]
+
+    return m_iou, m_expand_iou, percents_iou, percents_expand_iou, results
 
 
 def train(rank, opt):
@@ -67,17 +83,20 @@ def train(rank, opt):
     model.setup(opt)
 
     best_miou = 0
+    best_expand_iou = 0
     result_count = 5
     if opt.model_generator_path is not None:
-        m_iou, _, percents_iou = validate(model, val_dataset, val_loader, result_count, opt.sdf)
+        m_total_iou, m_expand_iou, percents_iou, percents_expand_iou, _ = validate(model, val_dataset, val_loader, result_count, opt.sdf)
         if rank == 0:
-            save_best = False
-            if best_miou < m_iou:
-                best_miou = m_iou
-
-            print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
+            best_miou = m_total_iou
+            best_expand_iou = m_expand_iou
+            print(f"Mean IoU: {best_miou}")
             for percent, m_iou in percents_iou.items():
                 print(f"percent {percent}, mean IoU: {m_iou}")
+
+            print(f"Mean expand IoU: {best_expand_iou}")
+            for percent, m_iou in percents_expand_iou.items():
+                print(f"percent {percent}, mean expand IoU: {m_iou}")
 
     if not os.path.exists(plot_save_path):
         os.makedirs(plot_save_path)
@@ -121,15 +140,17 @@ def train(rank, opt):
         model.update_learning_rate()
 
         if epoch % opt.val_freq == 0:
-            m_iou, results, percents_iou = validate(model, val_dataset, val_loader, result_count, opt.sdf)
-
+            m_total_iou, m_expand_iou, percents_iou, percents_expand_iou, results = validate(model, val_dataset, val_loader, result_count, opt.sdf)
             save_best = False
-            if best_miou < m_iou:
-                best_miou = m_iou
+            if best_miou < m_total_iou:
+                best_miou = m_total_iou
+            if best_expand_iou < m_expand_iou:
+                best_expand_iou = m_expand_iou
                 save_best = True
-            nrows = 2
+
+            nrows = 4
             ncols = result_count
-            fig, axes = plt.subplots(nrows=nrows, ncols=ncols)
+            fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=(8, 2))
             plt.suptitle(f"EPOCH : {epoch}")
             
             for i, result in enumerate(results):
@@ -137,13 +158,21 @@ def train(rank, opt):
                 axes[0][i].axis("off")
                 axes[1][i].imshow(Image.fromarray(result[1]), cmap="gray")
                 axes[1][i].axis("off")
+                axes[2][i].imshow(Image.fromarray(result[2]), cmap="gray")
+                axes[2][i].axis("off")
+                axes[3][i].imshow(Image.fromarray(result[3]), cmap="gray")
+                axes[3][i].axis("off")
 
             fig.savefig(f"{plot_save_path}/epoch_{epoch}_result.jpg")
             plt.close(fig)
 
-            print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_iou}")
+            print(f"Best mean IoU: {best_miou}, this epoch mean IoU: {m_total_iou}")
             for percent, m_iou in percents_iou.items():
                 print(f"percent {percent}, mean IoU: {m_iou}")
+
+            print(f"Best expand mean IoU: {best_expand_iou}, this epoch expand mean IoU: {m_expand_iou}")
+            for percent, m_iou in percents_expand_iou.items():
+                print(f"percent {percent}, mean expand IoU: {m_iou}")
 
             if save_best:
                 print(f"saving the model at the end of epoch {epoch}")
