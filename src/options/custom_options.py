@@ -66,5 +66,7 @@ def parse_args():
     parser.add_argument('--preprocess', type=str, default='resize', help='scaling and cropping of images at load time [resize_and_crop | crop | scale_width | scale_width_and_crop | none]')
     parser.add_argument('--no-flip', action='store_true', help='if specified, do not flip the images for data augmentation')
     parser.add_argument('--save-latest-freq', type=int, default=5000, help='frequency of saving the latest results')
+    # additional parameters
+    parser.add_argument('--split-percent', type=float, default=-1, help='-1 for all')
     args = parser.parse_args()
     return args

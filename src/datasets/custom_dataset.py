@@ -20,7 +20,12 @@ class CustomDataset(object):
         )
 
         self.categories = [cate["id"] for cate in data["categories"]]
-        self.annos_info = data["annotations"]
+
+        if opt.split_percent != -1:
+            self.annos_info = [anno for anno in data["annotations"] 
+                               if anno["split_percent"] == opt.split_percent]
+        else:
+            self.annos_info = data["annotations"]
 
         self.is_grayscale = (self.opt.input_nc == 1)
 
