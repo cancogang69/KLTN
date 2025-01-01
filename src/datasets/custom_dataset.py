@@ -61,7 +61,7 @@ class CustomDataset(object):
             expand_map[:, last_col:] = 1
             expand_map[:, :last_col] = -1
 
-        return np.expand_dims(expand_map, axis=0)
+        return np.expand_dims(expand_map, axis=0).astype(np.float16)
     
     def __get_object(self, image, object_mask):
         white_image = np.full_like(image, fill_value=(255, 255, 255))
