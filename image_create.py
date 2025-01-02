@@ -70,7 +70,7 @@ def restore_from_mask(
     # pipe = pipe.to(device)
     torch.cuda.empty_cache()
     pipe.enable_attention_slicing()
-    pipe.enable_xformers_memory_efficient_attention()
+    # pipe.enable_xformers_memory_efficient_attention()
     
     if sampler == "euler_a":
         from diffusers import EulerAncestralDiscreteScheduler
