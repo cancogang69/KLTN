@@ -137,7 +137,7 @@ def generate_image_caption(model, processor, images, device):
 
 def get_sd_pipeline(model_id, seed):
     # seed (int, optional): Random seed for reproducibility
-    
+
     torch.cuda.empty_cache()
     if seed is not None:
         torch.manual_seed(seed)
@@ -236,7 +236,6 @@ if __name__ == "__main__":
                                         negative_prompt=negative_promts,
                                         sampler=sampler,
                                         num_inference_steps=sample_step,
-                                        seed=seed,
                                         denoise_strength=denoise_strength)
               
               for i, image in enumerate(images):
