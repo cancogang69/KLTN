@@ -241,8 +241,6 @@ if __name__ == "__main__":
               for i, image in enumerate(images):
                   result_save_path = f"{save_path}/{batch_info['expand_masks_name'][i]}_re.png"
                   image.resize(batch_info["imgs_shape"][i]).save(result_save_path)
-
-              break
                   
           batch_info = {"images": [],
                       "masks": [],
