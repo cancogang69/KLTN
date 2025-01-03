@@ -15,7 +15,7 @@ from diffusers.utils import logging
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--save-path", type=str, default="outpaint_result")
-    parser.add_argument("--imgs-root", type=str, default="outpaint_result")
+    parser.add_argument("--imgs-root", type=str, required=True)
     parser.add_argument("--expand-mask-root", type=str, required=True)
     parser.add_argument("--json-path", type=str, required=True)
     parser.add_argument("--seed", type=int, default=69)
@@ -178,6 +178,7 @@ if __name__ == "__main__":
     args = get_args()
 
     if args.disable_progress_bar:
+        print("He calling me")
         logging.disable_progress_bar()
 
     if not os.path.exists(args.save_path):
