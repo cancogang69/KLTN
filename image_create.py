@@ -9,8 +9,6 @@ from accelerate import PartialState
 import torch
 from diffusers import StableDiffusionInpaintPipeline, AutoencoderKL, UNet2DConditionModel
 from transformers import CLIPTextModel, CLIPTokenizer, BlipProcessor, BlipForConditionalGeneration
-from diffusers.utils import logging
-
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -177,10 +175,6 @@ def get_sd_pipeline(model_id, seed):
 if __name__ == "__main__":
     args = get_args()
 
-    if args.disable_progress_bar:
-        print("He calling me")
-        logging.disable_progress_bar()
-
     if not os.path.exists(args.save_path):
         os.makedirs(args.save_path)
 
@@ -201,6 +195,9 @@ if __name__ == "__main__":
     pipeline = get_sd_pipeline(args.model_id, args.seed)
 
     distributed_state = PartialState()
+    if args.disable_progess_bar:
+        pipeline.set_progress_bar_config(disable=True)
+        
     pipeline.to(distributed_state.device)
     bmodel.to(distributed_state.device)
     batch_info = {"images": [],
