@@ -195,9 +195,9 @@ if __name__ == "__main__":
     pipeline = get_sd_pipeline(args.model_id, args.seed)
 
     distributed_state = PartialState()
-    if args.disable_progess_bar:
+    if args.disable_progress_bar:
         pipeline.set_progress_bar_config(disable=True)
-        
+
     pipeline.to(distributed_state.device)
     bmodel.to(distributed_state.device)
     batch_info = {"images": [],
