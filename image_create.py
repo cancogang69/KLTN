@@ -2,7 +2,6 @@ import os
 import json
 import argparse
 import numpy as np
-from PIL import Image
 import cv2
 from tqdm.auto import tqdm
 from accelerate import PartialState
@@ -23,6 +22,7 @@ def get_args():
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--denoise-strength", type=float, default=1.0)
     parser.add_argument("--disable-progress-bar", action="store_true")
+    parser.add_argument("--negative-prompt", type=str, default="")
     args = parser.parse_args()
     return args
 
@@ -52,14 +52,21 @@ def fill_img(img, mask, last_col):
 
     return img
 
+def resize(img, new_shape, is_shrink=False):
+    if is_shrink:
+        return cv2.resize(img, (new_shape[1], new_shape[0]), cv2.INTER_AREA)
+    else:
+        return cv2.resize(img, (new_shape[1], new_shape[0]), cv2.INTER_LINEAR)
+
 def restore_from_mask(
     pipe,
-    init_image,
-    mask_image,
-    prompt="",
-    negative_prompt="",
+    init_images,
+    mask_images,
+    prompts=[],
+    negative_prompts=[],
     num_inference_steps=30,
     guidance_scale=7.5,
+    seed=None,
     denoise_strength=0.75,
     sampler="euler_a"
 ):
@@ -73,6 +80,7 @@ def restore_from_mask(
         negative_prompt (str): Text prompt for what to avoid in generation
         num_inference_steps (int): Number of denoising steps
         guidance_scale (float): How strongly the image should conform to prompt (CFG scale)
+        seed (int, optional): Random seed for reproducibility
         denoise_strength (float): Strength of denoising, between 0.0 and 1.0
         sampler (str): Sampling method to use ('euler_a', 'euler', 'heun', 'dpm_2', 
                        'dpm_2_ancestral', 'lms', 'ddim', 'pndm')
@@ -81,6 +89,8 @@ def restore_from_mask(
         PIL.Image: The restored image
     """
     
+    # Set device and optimize memory
+    # device = "cuda" if torch.cuda.is_available() else "cpu"
     # pipe = pipe.to(device)
     torch.cuda.empty_cache()
     pipe.enable_attention_slicing()
@@ -117,28 +127,26 @@ def restore_from_mask(
                                                                 algorithm_type="sde-dpmsolver++"
                                                                 )
     
-    target_size = (512, 512)
-    images = []
-    masks = []
-    for img in init_image:
-        images.append(img.resize(target_size))
-
-    for mask in mask_image:
-        masks.append(mask.resize(target_size))
-    
     with torch.inference_mode():
         outputs = pipe(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            image=images,
-            mask_image=masks,
+            prompt=prompts,
+            negative_prompt=negative_prompts,
+            image=init_images,
+            mask_image=mask_images,
             guidance_scale=guidance_scale,
             num_inference_steps=num_inference_steps,
-            strength=denoise_strength,  # Using the denoise_strength parameter
+            strength=denoise_strength,
+            output_type="np"
         ).images
-        
     torch.cuda.empty_cache()
-    return outputs
+    
+    images = []
+    for image in outputs:
+        image = (image * 255).astype(np.uint8)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        images.append(image)
+        
+    return images
 
 def generate_image_caption(model, processor, images, device):
     inputs = processor(images, return_tensors="pt").to(device)
@@ -146,8 +154,8 @@ def generate_image_caption(model, processor, images, device):
         **inputs,
         max_new_tokens=512,
     )
-    caption = processor.decode(outputs[0], skip_special_tokens=True)
-    return caption
+    captions = processor.batch_decode(outputs, skip_special_tokens=True)
+    return captions
 
 def get_sd_pipeline(model_id, seed):
     # seed (int, optional): Random seed for reproducibility
@@ -174,6 +182,7 @@ def get_sd_pipeline(model_id, seed):
 
 if __name__ == "__main__":
     args = get_args()
+    target_size = (512, 512)
 
     if not os.path.exists(args.save_path):
         os.makedirs(args.save_path)
@@ -212,32 +221,37 @@ if __name__ == "__main__":
         
         init_mask = get_mask(
                 img_height, img_width, anno["visible_segmentations"]
-        )
+        )   
 
+        is_shrink = ((img_width > target_size[1]) or (img_height > target_size[0]))
         percent = str(int(anno["percent"] * 100))
         expand_mask_name = f"{img_name}_{anno['id']}_e.png"
         expand_mask_path = f"{args.expand_mask_root}/{percent}/{expand_mask_name}"
-        expand_mask = Image.open(expand_mask_path)
-        expand_mask = Image.fromarray(np.array(expand_mask) * 255.0).convert("RGB") 
+        expand_mask = cv2.imread(expand_mask_path, cv2.IMREAD_GRAYSCALE)
+        expand_mask = expand_mask * 255.0
+        expand_mask = resize(expand_mask, target_size, is_shrink)
+        _, expand_mask = cv2.threshold(expand_mask, 128, 255, 0)
         
         img_path = f"{args.imgs_root}/{img_info['file_name']}"
-        img = Image.open(img_path)
+        img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_filled = fill_img(img, init_mask, anno["last_col"])
+        img_filled = resize(img_filled, target_size, is_shrink)
         
         if len(batch_info["images"]) == args.batch_size:
             with distributed_state.split_between_processes(batch_info) as batch_info:
-                captions = []
-                for image in batch_info["images"]:
-                    caption = generate_image_caption(bmodel,
-                                                    bprocessor,
-                                                    (torch.as_tensor(np.array(image))
-                                                        .permute(2, 0, 1)),
-                                                    distributed_state.device)
-                    captions.append(caption)
+                images = np.array(batch_info["images"])
+                captions = generate_image_caption(bmodel,
+                                                bprocessor,
+                                                (torch.as_tensor(images)
+                                                    .permute(0, 3, 1, 2)),
+                                                distributed_state.device)
 
-                negative_promts = ['' for i in range(len(captions))]
+
+                negative_promts = [args.negative_prompt for i in range(len(captions))]
+                images = images / 255
                 
-                images = restore_from_mask(pipe=pipeline,
+                result_images = restore_from_mask(pipe=pipeline,
                                             init_image=batch_info["images"],
                                             mask_image=batch_info["masks"],
                                             prompt=captions,
@@ -246,16 +260,19 @@ if __name__ == "__main__":
                                             num_inference_steps=args.sample_step,
                                             denoise_strength=args.denoise_strength)
                 
-                for i, image in enumerate(images):
+                for i, image in enumerate(result_images):
                     result_save_path = f"{args.save_path}/{batch_info['expand_masks_name'][i]}_re.png"
-                    image.resize(batch_info["imgs_shape"][i]).save(result_save_path)
+                    img_h, img_w = batch_info['imgs_shape'][i]
+                    is_shrink = (((img_w < target_size[1]) or (img_h < target_size[0])))
+                    image = resize(image, batch_info["imgs_shape"][i], is_shrink)
+                    cv2.imwrite(result_save_path, image)
                     
             batch_info = {"images": [],
                         "masks": [],
                         "expand_masks_name": [],
                         "imgs_shape": []}
         else:
-            batch_info["images"].append(Image.fromarray(img_filled.copy()))
+            batch_info["images"].append(img_filled)
             batch_info["masks"].append(expand_mask)
             batch_info["expand_masks_name"].append(expand_mask_name.split(".")[0])
             batch_info["imgs_shape"].append([img_height, img_width])
