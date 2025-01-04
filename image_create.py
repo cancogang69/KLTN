@@ -252,10 +252,10 @@ if __name__ == "__main__":
                 images = images / 255
                 
                 result_images = restore_from_mask(pipe=pipeline,
-                                            init_image=batch_info["images"],
-                                            mask_image=batch_info["masks"],
-                                            prompt=captions,
-                                            negative_prompt=negative_promts,
+                                            init_images=images,
+                                            mask_images=batch_info["masks"],
+                                            prompts=captions,
+                                            negative_prompts=negative_promts,
                                             sampler=args.sampler,
                                             num_inference_steps=args.sample_step,
                                             denoise_strength=args.denoise_strength)
