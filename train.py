@@ -22,7 +22,7 @@ def validate(model, val_dataset, val_loader, result_count=5, is_sdf=False):
     results = []
     for data in val_loader:
         
-        input_datas, final_masks, expand_regions, percents = data
+        input_datas, final_masks, expand_regions, percents, _, _ = data
         predict_masks = model.predict(input_datas)
 
         for predict_mask, final_mask, expand_region, percent in zip(predict_masks, final_masks, expand_regions, percents):
@@ -112,7 +112,7 @@ def train(rank, opt):
 
         is_discrim_backprop = ((epoch % opt.discrim_backprop_freq) == 0)
         for data in train_loader:
-            input_datas, final_masks, _, _ = data
+            input_datas, final_masks = data[:2]
             model.set_input(input=input_datas, target=final_masks)
             gen_loss, dis_loss = model.optimize_parameters(is_discrim_backprop)
 

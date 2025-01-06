@@ -24,7 +24,7 @@ def evaluate(rank, opt):
     percents_iou = {}
     percents_expand_iou = {}
     for data in val_loader:
-        input_datas, final_masks, expand_regions, percents, _, _ = data
+        input_datas, final_masks, expand_regions, percents = data[:4]
         predict_masks = model.predict(input_datas)
 
         for predict_mask, final_mask, expand_region, percent in zip(predict_masks, final_masks, expand_regions, percents):
