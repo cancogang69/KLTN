@@ -26,14 +26,15 @@ def tensor2im(input_image, is_gray=False, is_sdf=False, imtype=np.uint8):
         else:
             return input_image
         image_numpy = image_tensor.cpu().float().numpy()
-        image_numpy = (np.transpose(image_numpy, (1, 2, 0)) ) * 255
-        if is_gray:
-            image_numpy[image_numpy < 50] = 0
-            image_numpy[image_numpy >= 50] = 1
-        elif is_sdf:
+        if is_sdf:
             image_numpy[image_numpy < 0] = 0
             image_numpy[image_numpy > 0] = 1
+        elif is_gray:
+            image_numpy = (np.transpose(image_numpy, (1, 2, 0)) ) * 255
+            image_numpy[image_numpy < 50] = 0
+            image_numpy[image_numpy >= 50] = 1
         else:
+            image_numpy = (np.transpose(image_numpy, (1, 2, 0)) ) * 255
             image_numpy[image_numpy < 128] = 0
             image_numpy[image_numpy >= 128] = 1
     else:  # if it is a numpy array, do nothing
