@@ -110,10 +110,7 @@ class CustomDataset(object):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             
             visible_mask = self.__get_object(img, visible_mask)
-        
-        if self.first_time:
-            cv2.imwrite("visible_mask.png", visible_mask)
-            
+
         # if self.opt.sdf:
         #     if self.opt.use_precalculate_sdf:
         #         sdf_path = f"{self.sdf_root}/{anno['id']}_input.npy"
