@@ -37,6 +37,8 @@ class CustomDataset(object):
             assert os.path.exists(sdf_root), f"{sdf_root} path not exists"
             self.sdf_root = sdf_root
 
+        self.first_time = True
+
     def __len__(self):
         return len(self.annos_info)
 
@@ -109,6 +111,9 @@ class CustomDataset(object):
             
             visible_mask = self.__get_object(img, visible_mask)
         
+        if self.first_time:
+            cv2.imwrite("visible_mask.png", visible_mask)
+            
         # if self.opt.sdf:
         #     if self.opt.use_precalculate_sdf:
         #         sdf_path = f"{self.sdf_root}/{anno['id']}_input.npy"
