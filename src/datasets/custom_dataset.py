@@ -101,8 +101,7 @@ class CustomDataset(object):
             label_segment = self.__get_label_segment(visible_mask, anno["category_id"])
             label_segment = self.transform_label_mask(torch.Tensor(label_segment))
 
-        if self.opt.use_image:
-            print("He calling use_image")
+        if not self.is_grayscale:
             image_path = f"{self.opt.image_root}/{image_info['file_name']}"
             assert os.path.exists(image_path), f"{image_path} doesn't exist"
             img = cv2.imread(image_path)
@@ -110,17 +109,17 @@ class CustomDataset(object):
             
             visible_mask = self.__get_object(img, visible_mask)
         
-        if self.opt.sdf:
-            if self.opt.use_precalculate_sdf:
-                sdf_path = f"{self.sdf_root}/{anno['id']}_input.npy"
-                assert os.path.exists(sdf_path), f"{sdf_path} doesn't exist"
-                visible_mask = np.expand_dims(np.load(sdf_path), 0)
-            else:
-                visible_mask = self.__get_sdf_map(visible_mask)
-            visible_mask[visible_mask < -100] = -100
-            visible_mask = self.input_resize(torch.Tensor(visible_mask))
-        else:
-            visible_mask = self.transform_img(Image.fromarray(visible_mask))
+        # if self.opt.sdf:
+        #     if self.opt.use_precalculate_sdf:
+        #         sdf_path = f"{self.sdf_root}/{anno['id']}_input.npy"
+        #         assert os.path.exists(sdf_path), f"{sdf_path} doesn't exist"
+        #         visible_mask = np.expand_dims(np.load(sdf_path), 0)
+        #     else:
+        #         visible_mask = self.__get_sdf_map(visible_mask)
+        #     visible_mask[visible_mask < -100] = -100
+        #     visible_mask = self.input_resize(torch.Tensor(visible_mask))
+        # else:
+        visible_mask = self.transform_img(Image.fromarray(visible_mask))
 
         input_data = visible_mask
         if "expand" in self.opt.extra_info:

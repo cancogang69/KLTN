@@ -50,13 +50,14 @@ class Pix2PixModel(BaseModel):
             self.model_names = ['G', 'D']
         else:
             self.model_names = ['G']
-        
-        if "expand" in opt.extra_info:
-            opt.input_nc = opt.input_nc + 1
-        if "label" in opt.extra_info:
-            opt.input_nc = opt.input_nc + 1
+        self.input_nc = opt.input_nc
 
-        self.netG = networks.define_G(opt.input_nc,
+        if "expand" in opt.extra_info:
+            self.input_nc = self.input_nc + 1
+        if "label" in opt.extra_info:
+            self.input_nc = self.input_nc + 1
+
+        self.netG = networks.define_G(self.input_nc,
                                       opt.output_nc,
                                       opt.ngf,
                                       opt.netG,
@@ -76,7 +77,7 @@ class Pix2PixModel(BaseModel):
             self.netG = self.netG.to(self.device)
 
         if self.isTrain:
-            self.netD = networks.define_D(opt.input_nc + opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm)
+            self.netD = networks.define_D(self.input_nc + opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.norm)
 
             if self.opt.model_discriminator_path is not None:
                 self.load_network(self.opt.model_discriminator_path, "D", False)
