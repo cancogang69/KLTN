@@ -30,8 +30,9 @@ def evaluate(rank, opt):
         predict_masks = model.predict(input_datas)
 
         for predict_mask, final_mask, expand_region, percent, img_name, anno_id in zip(predict_masks, final_masks, expand_regions, percents, img_names, anno_ids):
-            final_mask = tensor2im(final_mask, is_sdf=opt.sdf).squeeze()
             expand_gt = final_mask.mul(expand_region)
+            final_mask = tensor2im(final_mask, is_sdf=opt.sdf).squeeze()
+            expand_gt_mask = tensor2im(expand_gt, is_sdf=opt.sdf).squeeze()
 
             expand_predict = predict_mask.mul(expand_region)
             predict_mask = tensor2im(predict_mask, is_sdf=opt.sdf).squeeze()
@@ -45,7 +46,7 @@ def evaluate(rank, opt):
             Image.fromarray(final_mask).save(gt_mask_path)
 
             gt_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_gt_e.png"
-            Image.fromarray(expand_gt).save(gt_mask_path)
+            Image.fromarray(expand_gt_mask).save(gt_mask_path)
 
             predict_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_a.png"
             Image.fromarray(predict_mask).save(predict_mask_path)
