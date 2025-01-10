@@ -31,12 +31,12 @@ def evaluate(rank, opt):
 
         for predict_mask, final_mask, expand_region, percent, img_name, anno_id in zip(predict_masks, final_masks, expand_regions, percents, img_names, anno_ids):
             expand_gt = final_mask.mul(expand_region)
-            final_mask = tensor2im(final_mask, is_sdf=opt.sdf).squeeze()
-            expand_gt_mask = tensor2im(expand_gt, is_sdf=opt.sdf).squeeze()
+            final_mask = tensor2im(final_mask, is_sdf=opt.sdf).squeeze() * 255
+            expand_gt_mask = tensor2im(expand_gt, is_sdf=opt.sdf).squeeze() * 255
 
             expand_predict = predict_mask.mul(expand_region)
-            predict_mask = tensor2im(predict_mask, is_sdf=opt.sdf).squeeze()
-            expand_predict_mask = tensor2im(expand_predict, is_sdf=opt.sdf).squeeze()
+            predict_mask = tensor2im(predict_mask, is_sdf=opt.sdf).squeeze() * 255
+            expand_predict_mask = tensor2im(expand_predict, is_sdf=opt.sdf).squeeze() * 255
 
             percent = str(int(percent*100))
             if not os.path.exists(f"{save_root}/{percent}"):
