@@ -29,22 +29,30 @@ def evaluate(rank, opt):
         input_datas, final_masks, expand_regions, percents, img_names, anno_ids = data
         predict_masks = model.predict(input_datas)
 
-        for predict_mask, _, expand_region, percent, img_name, anno_id in zip(predict_masks, final_masks, expand_regions, percents, img_names, anno_ids):
+        for predict_mask, final_mask, expand_region, percent, img_name, anno_id in zip(predict_masks, final_masks, expand_regions, percents, img_names, anno_ids):
+            final_mask = tensor2im(final_mask, is_sdf=opt.sdf).squeeze()
+            expand_gt = final_mask.mul(expand_region)
+
             expand_predict = predict_mask.mul(expand_region)
-
             predict_mask = tensor2im(predict_mask, is_sdf=opt.sdf).squeeze()
-
             expand_predict_mask = tensor2im(expand_predict, is_sdf=opt.sdf).squeeze()
 
             percent = str(int(percent*100))
             if not os.path.exists(f"{save_root}/{percent}"):
               os.makedirs(f"{save_root}/{percent}")
 
+            gt_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_gt_a.png"
+            Image.fromarray(final_mask).save(gt_mask_path)
+
+            gt_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_gt_e.png"
+            Image.fromarray(expand_gt).save(gt_mask_path)
+
             predict_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_a.png"
             Image.fromarray(predict_mask).save(predict_mask_path)
 
             predict_mask_path = f"{save_root}/{percent}/{img_name.split('.')[0]}_{anno_id}_e.png"
             Image.fromarray(expand_predict_mask).save(predict_mask_path)
+
 
 if __name__ == "__main__":
     opt = parse_args()
